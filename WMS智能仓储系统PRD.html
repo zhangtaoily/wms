@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>PRD · 云梭智能仓储管理系统（WMS）V3.69</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Microsoft YaHei","PingFang SC",SimSun,sans-serif; font-size:14px; color:#20364a; background:#eef2f7; line-height:1.75; }
+.layout { display:flex; max-width:1280px; margin:0 auto; }
+nav.toc { width:230px; flex:none; position:sticky; top:0; height:100vh; overflow:auto; background:#1f3550; color:#c9d8ea; padding:22px 0; }
+nav.toc h1 { font-size:15px; color:#fff; padding:0 18px 14px; border-bottom:1px solid #33507a; margin-bottom:10px; }
+nav.toc a { display:block; padding:6px 18px 6px 26px; color:#b7c9de; text-decoration:none; font-size:13px; border-left:3px solid transparent; }
+nav.toc a:hover { color:#fff; background:#2a4a75; }
+nav.toc a.lv2 { padding-left:40px; font-size:12px; color:#9db4d0; }
+main { flex:1; min-width:0; background:#fff; margin:14px; border-radius:8px; padding:40px 52px; box-shadow:0 2px 10px rgba(30,60,100,.08); }
+h2 { font-size:21px; color:#17365d; border-left:5px solid #2f74b8; padding-left:12px; margin:38px 0 16px; }
+h3 { font-size:17px; color:#1f4e79; margin:26px 0 10px; }
+h4 { font-size:15px; color:#2f74b8; margin:18px 0 8px; }
+p { margin:8px 0; }
+ul,ol { margin:8px 0 8px 24px; }
+li { margin:3px 0; }
+table { border-collapse:collapse; width:100%; margin:12px 0; font-size:13px; }
+th { background:linear-gradient(180deg,#f8fbfe,#e3edf7); color:#243f59; border:1px solid #b9c9da; padding:6px 10px; text-align:left; }
+td { border:1px solid #d7e1ec; padding:6px 10px; vertical-align:top; }
+tr:nth-child(even) td { background:#f7fafd; }
+figure { margin:18px 0; padding:14px; border:1px solid #c9d8e8; border-radius:6px; background:#fbfdff; overflow-x:auto; }
+figcaption { text-align:center; color:#5b7286; font-size:13px; margin-top:8px; }
+code,.tag { background:#eaf1f9; border:1px solid #c7d9ec; border-radius:3px; padding:1px 6px; font-size:12px; color:#1a5fa8; font-family:Consolas,monospace; }
+.tbd { color:#b03a2e; font-weight:bold; }
+.assume { color:#b07d2b; }
+.note { background:#f4f8fc; border-left:4px solid #4a90d9; padding:10px 14px; margin:12px 0; border-radius:0 4px 4px 0; font-size:13px; }
+.warn { background:#fdf6ef; border-left:4px solid #e8a33d; padding:10px 14px; margin:12px 0; border-radius:0 4px 4px 0; font-size:13px; }
+svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
+@media print { nav.toc { display:none; } main { margin:0; border-radius:0; box-shadow:none; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc">
+<h1>智能仓储 WMS<br>PRD V3.69</h1>
+<a href="#s1">1 背景与目标</a>
+<a href="#s2">2 范围</a>
+<a href="#s3">3 产品模型</a>
+<a href="#s3-1" class="lv2">3.1 角色与权限</a>
+<a href="#s3-2" class="lv2">3.2 核心业务对象</a>
+<a href="#s3-3" class="lv2">3.3 单据状态机</a>
+<a href="#s4">4 业务闭环总览</a>
+<a href="#s5">5 功能需求</a>
+<a href="#s5-1" class="lv2">5.1 入库链路</a>
+<a href="#s5-2" class="lv2">5.2 出库链路</a>
+<a href="#s5-3" class="lv2">5.3 库内管理</a>
+<a href="#s5-4" class="lv2">5.4 立库作业</a>
+<a href="#s5-5" class="lv2">5.5 PDA 工作台</a>
+<a href="#s5-6" class="lv2">5.6 基础数据</a>
+<a href="#s5-7" class="lv2">5.7 系统管理</a>
+<a href="#s5-8" class="lv2">5.8 列表通用能力</a>
+<a href="#s6">6 数据来源与数据出口</a>
+<a href="#s7">7 业务闭环规则</a>
+<a href="#s8">8 共享规则与异常</a>
+<a href="#s9">9 待定问题</a>
+</nav>
+<main>
+
+<h1 style="font-size:26px;color:#17365d;margin-bottom:4px;">云梭数智工业互联网平台 · 智能仓储管理系统（WMS）产品需求文档</h1>
+<p style="color:#5b7286;">版本 V3.69 ｜ 行业：毛纺（浙江云梭纺织股份有限公司）｜ 依据：已交付可交互原型（d:\prj\wms\prototype）｜ 状态：评审稿</p>
+
+<!-- ================================================================ -->
+<h2 id="s1">1 背景与目标</h2>
+<p><b>现状问题：</b>毛纺产品以"批号 + 缸号 + 箱码"为最小追溯单元，传统 ERP 仓储模块只能管理到单据与数量，无法覆盖以下场景：</p>
+<ul>
+<li>纱线入库前需先收录箱码（码单）、再组托（托盘）上架，人工纸单易错漏；</li>
+<li>立体仓库（ASRS）设备作业与业务单据脱节，下架/回库依赖人工指挥；</li>
+<li>批号、缸号、标重、纱支、原料成分等行业属性的库存台账与追溯难以支撑；</li>
+<li>仓内作业（移库、盘存、调拨）缺少移动端（PDA）支持。</li>
+</ul>
+<p><b>产品响应：</b>建设独立 WMS，承接 ERP 下游仓储执行：以条码为纽带把单据、箱码、托盘、仓位、设备任务串联起来，并将执行结果回写 ERP。</p>
+<p><b>可观察的目标结果：</b></p>
+<ul>
+<li>任一箱码可追溯到批号、缸号、托盘、仓位、经手人与时间；</li>
+<li>出入库单据从 ERP 引入后，无需重复录单即可完成作业并回写；</li>
+<li>普通仓（人工 + PDA）与立库（扫码终端 + 输送线）在同一单据体系下闭环；</li>
+<li>库存以"库存批次 × 仓位 × 托盘 × 箱码"多粒度实时可见。</li>
+</ul>
+
+<!-- ================================================================ -->
+<h2 id="s2">2 范围</h2>
+<h3>2.1 P0（当前原型已覆盖，共 5 组 27 个功能模块 + 2 个终端界面）</h3>
+<table>
+<tr><th>模块组</th><th>模块</th></tr>
+<tr><td>仓储作业</td><td>出库通知、收货清单、组托单、码单收录、PDA 工作台</td></tr>
+<tr><td>立库作业</td><td>仓储任务、作业任务、作业日志、立库扫码终端</td></tr>
+<tr><td>库存管理</td><td>出库单、入库单、盘存单、移库单</td></tr>
+<tr><td>基础数据</td><td>业务批次、库存批次、箱码信息、托盘信息、仓位信息、仓库信息</td></tr>
+<tr><td>系统管理</td><td>业务字典、系统设置、模块组别、功能模块、用户信息、角色设置、打印模板、提醒设置</td></tr>
+</table>
+<h3>2.2 明确排除</h3>
+<ul>
+<li>外部单据相关功能（K3 入库单 / K3 出库单等）——业务上已停用；</li>
+<li>ERP 单据查询配置。</li>
+</ul>
+<h3>2.3 P1（后续迭代候选，本次不展开）</h3>
+<ul>
+<li>同步失败的自动重试与告警推送通道（见第 9 节待定问题）；</li>
+<li>盘盈盘亏的审批流（当前止于盘存单据级）；</li>
+<li>库存预警、效期/回潮率批次策略。</li>
+</ul>
+
+<!-- ================================================================ -->
+<h2 id="s3">3 产品模型</h2>
+<h3 id="s3-1">3.1 角色与权限</h3>
+<p>角色为<b>系统可配置对象</b>（角色设置模块提供菜单级权限树：按"模块组 → 功能模块"两级勾选），典型预置角色如下：</p>
+<table>
+<tr><th>角色</th><th>核心作业</th><th>常用界面</th></tr>
+<tr><td>仓库主管</td><td>单据审核生效、监控同步状态、盘存确认</td><td>PC 全模块</td></tr>
+<tr><td>入库仓管员</td><td>收货清单确认、码单收录、组托、入库单</td><td>PC + PDA</td></tr>
+<tr><td>出库仓管员</td><td>出库通知引入、出库单执行与同步 ERP</td><td>PC + 扫码终端</td></tr>
+<tr><td>立库操作员</td><td>仓储任务/作业任务监控、月台扫码下架</td><td>PC + 立库扫码终端</td></tr>
+<tr><td>系统管理员</td><td>字典/模板/角色/用户维护</td><td>PC 系统管理</td></tr>
+</table>
+
+<h3 id="s3-2">3.2 核心业务对象</h3>
+<table>
+<tr><th>类别</th><th>对象</th><th>关键属性（原型字段）</th><th>关系</th></tr>
+<tr><td rowspan="4">作业单据</td><td>收货清单</td><td>收货单号、供应商、发货单号、在途状态</td><td>来源 ERP 在途收料</td></tr>
+<tr><td>码单收录单</td><td>单据编号、业务类型、批号、件量</td><td>生成箱码 → 组托</td></tr>
+<tr><td>组托单</td><td>组托类型（件入/传入/手动）、托盘号、箱码、批号、缸号</td><td>箱码 → 托盘</td></tr>
+<tr><td>入库单 / 出库单</td><td>单号、状态、ERP 单号、仓库、批号、缸号、标重、箱数、同步状态</td><td>回写 ERP 的载体</td></tr>
+<tr><td rowspan="2">任务</td><td>仓储任务</td><td>任务号、任务类型、月台/设备、执行状态</td><td>出库单 → 立库下架</td></tr>
+<tr><td>作业任务 / 作业日志</td><td>作业时间、设备、动作、操作人</td><td>立库执行留痕</td></tr>
+<tr><td rowspan="3">库存台账</td><td>库存批次</td><td>批号、缸号、物料、纱支、原料成分、标重、仓库/仓位</td><td>库存主账</td></tr>
+<tr><td>托盘 / 箱码</td><td>托盘号、箱码、所属批次、所在仓位、状态</td><td>批次 → 托盘 → 箱码三层</td></tr>
+<tr><td>仓位 / 仓库</td><td>仓位号（区-列-层-位）、仓库类型（立库/普通仓）</td><td>库存定位</td></tr>
+</table>
+
+<h3 id="s3-3">3.3 单据状态机</h3>
+<figure>
+<svg viewBox="0 0 860 210" width="100%">
+<defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#4a6c96"/></marker></defs>
+<g font-size="13">
+<rect x="20" y="30" width="110" height="40" rx="4" fill="#eef3f9" stroke="#7a9cc4"/><text x="75" y="55" text-anchor="middle" fill="#20364a">新建/引入</text>
+<rect x="180" y="30" width="110" height="40" rx="4" fill="#fdf3e7" stroke="#d8a657"/><text x="235" y="55" text-anchor="middle" fill="#7a5a1d">制单中/制作中</text>
+<rect x="360" y="30" width="110" height="40" rx="4" fill="#e9f7ee" stroke="#57a773"/><text x="415" y="55" text-anchor="middle" fill="#1e6b3c">生效</text>
+<line x1="130" y1="50" x2="176" y2="50" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar)"/>
+<line x1="290" y1="50" x2="356" y2="50" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar)"/>
+<text x="323" y="40" text-anchor="middle" fill="#5b7286" font-size="12">提交/生效</text>
+<path d="M235 70 L235 120 L415 120 L415 74" fill="none" stroke="#b0b8c4" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+<text x="325" y="136" text-anchor="middle" fill="#8a97a5" font-size="12">生效后不可编辑（仅查看）</text>
+<!-- 同步状态 -->
+<rect x="530" y="30" width="120" height="40" rx="4" fill="#fbeceb" stroke="#c9807a"/><text x="590" y="55" text-anchor="middle" fill="#9c3b33">未同步</text>
+<rect x="710" y="30" width="120" height="40" rx="4" fill="#e9f7ee" stroke="#57a773"/><text x="770" y="55" text-anchor="middle" fill="#1e6b3c">同步成功</text>
+<line x1="470" y1="50" x2="526" y2="50" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar)"/>
+<text x="498" y="40" text-anchor="middle" fill="#5b7286" font-size="12">生效后</text>
+<line x1="650" y1="50" x2="706" y2="50" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar)"/>
+<text x="678" y="40" text-anchor="middle" fill="#5b7286" font-size="12">同步ERP</text>
+<path d="M770 70 L770 120 L590 120 L590 74" fill="none" stroke="#c9807a" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#ar)"/>
+<text x="680" y="136" text-anchor="middle" fill="#9c3b33" font-size="12">失败/未同步 → 重新同步（重试策略待定）</text>
+<text x="430" y="185" text-anchor="middle" fill="#5b7286">上：单据生命周期 ｜ 下虚线：约束与回退路径（适用于出/入库单、出库通知、组托单、盘存单、移库单）</text>
+</g>
+</svg>
+<figcaption>图 1 · 单据状态机与同步状态</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<h2 id="s4">4 业务闭环总览</h2>
+<p>系统的核心价值链是一条<b>"ERP 引入 → 仓储执行 → 台账更新 → 回写 ERP → 同步对账"</b>的闭环：</p>
+<figure>
+<svg viewBox="0 0 960 300" width="100%">
+<defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#2f74b8"/></marker></defs>
+<g font-size="13">
+<!-- ERP -->
+<rect x="20" y="100" width="150" height="90" rx="6" fill="#dce9f6" stroke="#7aa3d6" stroke-width="2"/>
+<text x="95" y="128" text-anchor="middle" font-weight="bold" fill="#17365d">ERP 系统</text>
+<text x="95" y="150" text-anchor="middle" fill="#41586c" font-size="12">销售/采购/生产单据</text>
+<text x="95" y="170" text-anchor="middle" fill="#41586c" font-size="12">（发货通知·收料·领料）</text>
+<!-- 闭环五环节 -->
+<rect x="240" y="20" width="170" height="56" rx="6" fill="#fff" stroke="#4a90d9"/>
+<text x="325" y="43" text-anchor="middle" font-weight="bold" fill="#1f4e79">① 单据引入</text>
+<text x="325" y="63" text-anchor="middle" fill="#5b7286" font-size="12">出库通知 / 收货清单</text>
+<rect x="240" y="118" width="170" height="56" rx="6" fill="#fff" stroke="#4a90d9"/>
+<text x="325" y="141" text-anchor="middle" font-weight="bold" fill="#1f4e79">② 仓储执行</text>
+<text x="325" y="161" text-anchor="middle" fill="#5b7286" font-size="12">码单→组托→入库/出库·移库·盘存</text>
+<rect x="240" y="216" width="170" height="56" rx="6" fill="#fff" stroke="#4a90d9"/>
+<text x="325" y="239" text-anchor="middle" font-weight="bold" fill="#1f4e79">③ 台账更新</text>
+<text x="325" y="259" text-anchor="middle" fill="#5b7286" font-size="12">库存批次·托盘·箱码·仓位</text>
+<rect x="470" y="216" width="170" height="56" rx="6" fill="#fff" stroke="#4a90d9"/>
+<text x="555" y="239" text-anchor="middle" font-weight="bold" fill="#1f4e79">④ 单据生效回写</text>
+<text x="555" y="259" text-anchor="middle" fill="#5b7286" font-size="12">入库单/出库单 → 同步ERP</text>
+<rect x="470" y="20" width="170" height="56" rx="6" fill="#fff" stroke="#4a90d9"/>
+<text x="555" y="43" text-anchor="middle" font-weight="bold" fill="#1f4e79">⑤ 同步对账</text>
+<text x="555" y="63" text-anchor="middle" fill="#5b7286" font-size="12">同步状态监控·失败重试</text>
+<!-- 执行现场 -->
+<rect x="700" y="100" width="240" height="90" rx="6" fill="#f0f7f2" stroke="#57a773" stroke-width="2"/>
+<text x="820" y="126" text-anchor="middle" font-weight="bold" fill="#1e6b3c">作业现场</text>
+<text x="820" y="148" text-anchor="middle" fill="#4a6250" font-size="12">PDA 手持终端 · 立库扫码终端</text>
+<text x="820" y="168" text-anchor="middle" fill="#4a6250" font-size="12">条码扫描 · 组托 · 月台下架</text>
+<!-- 箭头 -->
+<line x1="170" y1="118" x2="236" y2="66" stroke="#2f74b8" stroke-width="1.8" marker-end="url(#ar2)"/>
+<line x1="325" y1="76" x2="325" y2="114" stroke="#2f74b8" stroke-width="1.8" marker-end="url(#ar2)"/>
+<line x1="325" y1="174" x2="325" y2="212" stroke="#2f74b8" stroke-width="1.8" marker-end="url(#ar2)"/>
+<line x1="410" y1="244" x2="466" y2="244" stroke="#2f74b8" stroke-width="1.8" marker-end="url(#ar2)"/>
+<path d="M555 216 L555 80" fill="none" stroke="#2f74b8" stroke-width="1.8" marker-end="url(#ar2)"/>
+<path d="M640 48 L760 48 L760 96" fill="none" stroke="#57a773" stroke-width="1.8" marker-end="url(#ar2)"/>
+<text x="700" y="40" fill="#1e6b3c" font-size="12">异常驱动闭环</text>
+<line x1="700" y1="145" x2="414" y2="150" stroke="#57a773" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#ar2)"/>
+<text x="555" y="140" text-anchor="middle" fill="#1e6b3c" font-size="12">扫描数据实时回填</text>
+<path d="M640 244 L940 244 L940 194" fill="none" stroke="#7a5a1d" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#ar2)"/>
+<text x="790" y="236" fill="#7a5a1d" font-size="12">⑤对账不平时 → 人工核查</text>
+</g>
+</svg>
+<figcaption>图 2 · 业务闭环总图：ERP 与作业现场通过五环节形成双向闭环</figcaption>
+</figure>
+<p><b>闭环成立的判定条件：</b>任一 ERP 引入单据，最终呈现"出/入库单 <span class="tag">生效</span> + <span class="tag">同步成功</span>"两个终态；若同步未成功，停留在 <span class="tag">未同步</span> 并可再次触发同步（见 7.4）。</p>
+
+<!-- ================================================================ -->
+<h2 id="s5">5 功能需求</h2>
+
+<h3 id="s5-1">5.1 入库链路（收货清单 → 码单收录 → 组托 → 入库单）</h3>
+<p><b>目的：</b>把 ERP 采购/生产/调拨的到货，转化为按"箱码-托盘-仓位"管理的在库批次，并回写 ERP。</p>
+<figure>
+<svg viewBox="0 0 960 420" width="100%">
+<defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#4a6c96"/></marker></defs>
+<g font-size="12.5">
+<!-- 泳道 -->
+<rect x="60" y="10" width="890" height="88" fill="#eef4fb" stroke="#c4d5e8"/>
+<text x="20" y="58" fill="#17365d" font-weight="bold" writing-mode="tb" letter-spacing="4">ERP系统</text>
+<rect x="60" y="106" width="890" height="88" fill="#f2f8f4" stroke="#c4ddcc"/>
+<text x="20" y="154" fill="#1e6b3c" font-weight="bold" writing-mode="tb" letter-spacing="4">WMS单据</text>
+<rect x="60" y="202" width="890" height="88" fill="#faf6ef" stroke="#e2d5bb"/>
+<text x="20" y="250" fill="#7a5a1d" font-weight="bold" writing-mode="tb" letter-spacing="4">现场作业</text>
+<rect x="60" y="298" width="890" height="88" fill="#f4f0f8" stroke="#d0c4e0"/>
+<text x="20" y="346" fill="#5b3d7a" font-weight="bold" writing-mode="tb" letter-spacing="4">立库设备</text>
+<!-- 节点 -->
+<g>
+<rect x="90" y="34" width="150" height="42" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="165" y="59" text-anchor="middle">ERP 收料/生产/调拨单</text>
+<rect x="100" y="130" width="130" height="42" rx="4" fill="#fff" stroke="#57a773"/><text x="165" y="155" text-anchor="middle">收货清单（在途）</text>
+<rect x="280" y="130" width="130" height="42" rx="4" fill="#fff" stroke="#57a773"/><text x="345" y="155" text-anchor="middle">码单收录</text>
+<rect x="460" y="130" width="130" height="42" rx="4" fill="#fff" stroke="#57a773"/><text x="345" y="0" ></text><text x="525" y="155" text-anchor="middle">组托单</text>
+<rect x="640" y="130" width="130" height="42" rx="4" fill="#fff" stroke="#57a773"/><text x="705" y="155" text-anchor="middle">入库单</text>
+<rect x="820" y="130" width="120" height="42" rx="4" fill="#dce9f6" stroke="#7aa3d6"/><text x="880" y="149" text-anchor="middle">同步ERP</text><text x="880" y="165" text-anchor="middle" font-size="11" fill="#5b7286">生成ERP入库单号</text>
+<rect x="280" y="226" width="150" height="42" rx="4" fill="#fff" stroke="#d8a657"/><text x="355" y="244" text-anchor="middle">PDA/PC 扫描箱码</text><text x="355" y="260" text-anchor="middle" font-size="11" fill="#5b7286">码单收录·扫托查询</text>
+<rect x="460" y="226" width="150" height="42" rx="4" fill="#fff" stroke="#d8a657"/><text x="535" y="244" text-anchor="middle">组托作业</text><text x="535" y="260" text-anchor="middle" font-size="11" fill="#5b7286">件入/传入/手动组托</text>
+<rect x="640" y="226" width="150" height="42" rx="4" fill="#fff" stroke="#d8a657"/><text x="715" y="244" text-anchor="middle">上架确认</text><text x="715" y="260" text-anchor="middle" font-size="11" fill="#5b7286">普通仓人工/PDA</text>
+<rect x="640" y="322" width="150" height="42" rx="4" fill="#fff" stroke="#9a7ec4"/><text x="715" y="340" text-anchor="middle">入库任务</text><text x="715" y="356" text-anchor="middle" font-size="11" fill="#5b7286">立库:输送线入立库上架</text>
+<rect x="850" y="322" width="120" height="42" rx="4" fill="#fff" stroke="#9a7ec4"/><text x="910" y="352" text-anchor="middle">作业日志留痕</text>
+</g>
+<!-- 箭头 -->
+<line x1="165" y1="76" x2="165" y2="126" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="230" y1="151" x2="276" y2="151" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="410" y1="151" x2="456" y2="151" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="590" y1="151" x2="636" y2="151" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="770" y1="151" x2="816" y2="151" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="345" y1="172" x2="345" y2="222" stroke="#d8a657" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ar3)"/>
+<line x1="430" y1="247" x2="456" y2="247" stroke="#d8a657" stroke-width="0" />
+<line x1="430" y1="247" x2="456" y2="176" stroke="#d8a657" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ar3)"/>
+<line x1="610" y1="247" x2="660" y2="176" stroke="#d8a657" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ar3)"/>
+<line x1="715" y1="268" x2="715" y2="318" stroke="#9a7ec4" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ar3)"/>
+<line x1="790" y1="343" x2="846" y2="343" stroke="#9a7ec4" stroke-width="1.6" marker-end="url(#ar3)"/>
+<text x="500" y="408" text-anchor="middle" fill="#8a97a5" font-size="12">实线=单据流 ｜ 虚线=现场执行/设备联动</text>
+</g>
+</svg>
+<figcaption>图 3 · 入库业务流程（泳道图）</figcaption>
+</figure>
+<h4>FR-01 收货清单</h4>
+<ul>
+<li><b>触发：</b>采购/调拨在途到货前，系统接收 ERP 收料数据，仓管员查看收货清单。</li>
+<li><b>处理规则：</b>记录供应商、供应商编码、发货单号、出库日期；在途状态为 在途 → 已到货 → 已收货。</li>
+<li><b>结果：</b>确认收货后进入码单收录环节；清单作为到货计划的依据（不直接生成库存）。</li>
+</ul>
+<h4>FR-02 码单收录</h4>
+<ul>
+<li><b>触发：</b>仓管员在 PC 或 PDA 上对到货纱箱逐一扫描箱码。</li>
+<li><b>处理规则：</b>按业务类型（采购入库/产件入库/调拨入库/销售入库等）建单；每箱记录批号、缸号、标重；单据明细支持"扫描引入"。</li>
+<li><b>结果：</b>生成箱码台账（箱码信息），累计件量；为组托提供箱码池。</li>
+</ul>
+<h4>FR-03 组托单</h4>
+<ul>
+<li><b>触发：</b>码单收录完成后，仓管员选择组托方式：件入条码组托 / 传入条码组托 / 手动组托。</li>
+<li><b>处理规则：</b>同托箱码归属同一托盘号；记录托盘号、箱码、批号、缸号；PDA 端可扫码组托。</li>
+<li><b>结果：</b>生成托盘台账（托盘信息），托盘成为立库入库与仓内移动的基本单元。</li>
+</ul>
+<h4>FR-04 入库单</h4>
+<ul>
+<li><b>触发：</b>组托完成并上架（普通仓人工/PDA 确认，立库由入库任务驱动）后生成入库单。</li>
+<li><b>处理规则：</b>字段含入库类型（采购/产件/调拨/样品/退料等）、作业方式（条码作业/批次作业）、仓库、批号、缸号、标重、箱数；支持"提交"后生效。</li>
+<li><b>结果：</b>生效后增加库存批次台账；执行"同步 ERP"生成 ERP 入库单号，同步状态置为成功。</li>
+<li><b>状态与例外：</b>制作中可编辑删除；生效后不可编辑；同步失败停留在未同步，可重新同步。</li>
+</ul>
+
+<h3 id="s5-2">5.2 出库链路（出库通知 → 出库单 → 立库下架/拣货 → 同步 ERP）</h3>
+<figure>
+<svg viewBox="0 0 960 420" width="100%">
+<g font-size="12.5">
+<rect x="60" y="10" width="890" height="88" fill="#eef4fb" stroke="#c4d5e8"/>
+<text x="20" y="58" fill="#17365d" font-weight="bold" writing-mode="tb" letter-spacing="4">ERP系统</text>
+<rect x="60" y="106" width="890" height="88" fill="#f2f8f4" stroke="#c4ddcc"/>
+<text x="20" y="154" fill="#1e6b3c" font-weight="bold" writing-mode="tb" letter-spacing="4">WMS单据</text>
+<rect x="60" y="202" width="890" height="88" fill="#faf6ef" stroke="#e2d5bb"/>
+<text x="20" y="250" fill="#7a5a1d" font-weight="bold" writing-mode="tb" letter-spacing="4">扫码终端/PDA</text>
+<rect x="60" y="298" width="890" height="88" fill="#f4f0f8" stroke="#d0c4e0"/>
+<text x="20" y="346" fill="#5b3d7a" font-weight="bold" writing-mode="tb" letter-spacing="4">立库设备</text>
+<g>
+<rect x="80" y="30" width="200" height="50" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="180" y="50" text-anchor="middle">ERP 发货通知单</text><text x="180" y="68" text-anchor="middle" font-size="11" fill="#5b7286">领料申请单 · 采购退料单</text>
+<rect x="90" y="128" width="160" height="50" rx="4" fill="#fff" stroke="#57a773"/><text x="170" y="148" text-anchor="middle">出库通知</text><text x="170" y="166" text-anchor="middle" font-size="11" fill="#5b7286">导入三类ERP单据生成</text>
+<rect x="310" y="128" width="140" height="50" rx="4" fill="#fff" stroke="#57a773"/><text x="380" y="148" text-anchor="middle">出库单</text><text x="380" y="166" text-anchor="middle" font-size="11" fill="#5b7286">批次明细·仓库·标重</text>
+<rect x="510" y="128" width="140" height="50" rx="4" fill="#fff" stroke="#57a773"/><text x="580" y="148" text-anchor="middle">出库执行</text><text x="580" y="166" text-anchor="middle" font-size="11" fill="#5b7286">普通仓拣货/PDA出库</text>
+<rect x="700" y="128" width="110" height="50" rx="4" fill="#fff" stroke="#57a773"/><text x="755" y="157" text-anchor="middle">出库确认</text>
+<rect x="830" y="128" width="120" height="50" rx="4" fill="#dce9f6" stroke="#7aa3d6"/><text x="890" y="148" text-anchor="middle">同步ERP</text><text x="890" y="166" text-anchor="middle" font-size="11" fill="#5b7286">生成ERP出库单号</text>
+<rect x="310" y="226" width="200" height="50" rx="4" fill="#fff" stroke="#d8a657"/><text x="410" y="246" text-anchor="middle">立库扫码终端</text><text x="410" y="264" text-anchor="middle" font-size="11" fill="#5b7286">选月台·条码出库·空托出库</text>
+<rect x="560" y="226" width="180" height="50" rx="4" fill="#fff" stroke="#d8a657"/><text x="650" y="246" text-anchor="middle">选托下架</text><text x="650" y="264" text-anchor="middle" font-size="11" fill="#5b7286">任务下发·输送线启动</text>
+<rect x="310" y="322" width="200" height="50" rx="4" fill="#fff" stroke="#9a7ec4"/><text x="410" y="342" text-anchor="middle">仓储任务/作业任务</text><text x="410" y="360" text-anchor="middle" font-size="11" fill="#5b7286">下架·回库·移库任务监控</text>
+<rect x="580" y="322" width="180" height="50" rx="4" fill="#fff" stroke="#9a7ec4"/><text x="670" y="342" text-anchor="middle">堆垛机/输送线执行</text><text x="670" y="360" text-anchor="middle" font-size="11" fill="#5b7286">作业日志自动留痕</text>
+</g>
+<line x1="180" y1="80" x2="172" y2="124" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="250" y1="153" x2="306" y2="153" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="450" y1="153" x2="506" y2="153" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="650" y1="153" x2="696" y2="153" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="810" y1="153" x2="826" y2="153" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="410" y1="178" x2="410" y2="222" stroke="#d8a657" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ar3)"/>
+<line x1="510" y1="251" x2="556" y2="251" stroke="#d8a657" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="740" y1="251" x2="755" y2="182" stroke="#d8a657" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ar3)"/>
+<line x1="410" y1="276" x2="410" y2="318" stroke="#9a7ec4" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ar3)"/>
+<line x1="510" y1="347" x2="576" y2="347" stroke="#9a7ec4" stroke-width="1.6" marker-end="url(#ar3)"/>
+<text x="500" y="408" text-anchor="middle" fill="#8a97a5" font-size="12">出库通知引入三源：发货通知单（销售）/ 领料申请单（生产）/ 采购退料单</text>
+</g>
+</svg>
+<figcaption>图 4 · 出库业务流程（泳道图）</figcaption>
+</figure>
+<h4>FR-05 出库通知</h4>
+<ul>
+<li><b>触发：</b>仓管员依次执行"导入发货通知 / 导入领料申请 / 导入采购退料"，或手工新建。</li>
+<li><b>处理规则：</b>明细含发货类型、批号、缸号、物料、色号（条染/统染/公司/客户）、标重、仓库、仓位；物料批发明细支持"引入通知单 / 扫描引入"。</li>
+<li><b>结果：</b>生效后作为出库作业的需求来源；状态 制单中 → 生效。</li>
+</ul>
+<h4>FR-06 出库单</h4>
+<ul>
+<li><b>触发：</b>依据出库通知生成；或手工新增。</li>
+<li><b>处理规则：</b>出库类型（销售/调拨/领料/直接拣货/复磅检/采购退料/样品）；作业方式（条码/批次）；记录 ERP 订单单号、ERP 出库单号。</li>
+<li><b>结果：</b>提交生效后扣减库存批次台账；"同步 ERP"成功后回写 ERP 出库单号。</li>
+</ul>
+<h4>FR-07 立库扫码终端（条码出库作业）</h4>
+<ul>
+<li><b>触发：</b>立库操作员在终端选择"条码出库 / 空托出库 / 条码出库测试"。</li>
+<li><b>处理规则：</b>扫描/输入批次任务号检索；选择月台回路（月台1~8号回路、出口自动、5#自动线、自动组托组箱共 11 个）；从"业务批次任务 / 托盘批次任务"双面板中选定任务。</li>
+<li><b>结果：</b>点击"开始作业"下发任务，输送线启动选托下架；<b>未选任务时阻断</b>并提示"请选择有效的批次任务，再进行选托下架作业！"。</li>
+<li><b>留痕：</b>执行过程写入仓储任务、作业任务与作业日志。</li>
+</ul>
+
+<h3 id="s5-3">5.3 库内管理（移库 / 盘存）</h3>
+<figure>
+<svg viewBox="0 0 960 190" width="100%">
+<g font-size="12.5">
+<rect x="60" y="15" width="410" height="150" fill="#f2f8f4" stroke="#c4ddcc"/>
+<text x="265" y="38" text-anchor="middle" font-weight="bold" fill="#1e6b3c">移库</text>
+<rect x="85" y="55" width="100" height="40" rx="4" fill="#fff" stroke="#57a773"/><text x="135" y="79" text-anchor="middle">移库单</text>
+<rect x="225" y="55" width="100" height="40" rx="4" fill="#fff" stroke="#57a773"/><text x="275" y="79" text-anchor="middle">托盘/编码/批次移动</text>
+<rect x="365" y="55" width="85" height="40" rx="4" fill="#fff" stroke="#57a773"/><text x="407" y="79" text-anchor="middle">仓位更新</text>
+<line x1="185" y1="75" x2="221" y2="75" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="325" y1="75" x2="361" y2="75" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<text x="265" y="130" text-anchor="middle" fill="#5b7286" font-size="12">类型：托盘挪库·编码移库·批次移库·空托移库（立库移库由仓储任务执行）</text>
+<text x="265" y="152" text-anchor="middle" fill="#5b7286" font-size="12">不改变批次数量，仅改变仓位/托盘归属</text>
+<rect x="500" y="15" width="450" height="150" fill="#eef4fb" stroke="#c4d5e8"/>
+<text x="725" y="38" text-anchor="middle" font-weight="bold" fill="#17365d">盘存</text>
+<rect x="525" y="55" width="90" height="40" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="570" y="79" text-anchor="middle">盘存单</text>
+<rect x="655" y="55" width="100" height="40" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="705" y="79" text-anchor="middle">逐仓位盘点</text>
+<rect x="795" y="55" width="90" height="40" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="840" y="79" text-anchor="middle">盘盈亏处理</text>
+<line x1="615" y1="75" x2="651" y2="75" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="755" y1="75" x2="791" y2="75" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<text x="725" y="130" text-anchor="middle" fill="#5b7286" font-size="12">盘点明细按箱/托核对；盘盈亏生成调整记录</text>
+<text x="725" y="152" text-anchor="middle" fill="#5b7286" font-size="12">审批流为 P1（见第 9 节）</text>
+</g>
+</svg>
+<figcaption>图 5 · 移库与盘存流程</figcaption>
+</figure>
+<h4>FR-08 移库单</h4>
+<ul>
+<li><b>触发：</b>仓管员新建移库单（PC/PDA 均可发起）。</li>
+<li><b>处理规则：</b>四种类型（托盘挪库/编码移库/批次移库/空托移库）；记录源仓位与目标仓位；明细按托盘/箱/批次层级。</li>
+<li><b>结果：</b>生效后更新托盘与箱码的仓位归属，库存批次总量不变；不回写 ERP（内部调整）。</li>
+</ul>
+<h4>FR-09 盘存单</h4>
+<ul>
+<li><b>触发：</b>仓库主管按周期或事件发起盘存。</li>
+<li><b>处理规则：</b>按仓库/仓位生成盘点范围，逐箱核对批号、缸号、标重；盘盈盘亏记录在盘存明细。</li>
+<li><b>结果：</b>生效后按盘点结果调整库存批次台账。</li>
+</ul>
+
+<h3 id="s5-4">5.4 立库作业（仓储任务 / 作业任务 / 作业日志）</h3>
+<h4>FR-10 仓储任务</h4>
+<ul>
+<li><b>目的：</b>对立库设备任务（入库上架、下架、回库、移库）进行业务级监控。</li>
+<li><b>字段：</b>任务号、任务类型、目标仓位/月台、执行状态、创建/完成时间。</li>
+</ul>
+<h4>FR-11 作业任务与作业日志</h4>
+<ul>
+<li><b>作业任务：</b>设备动作粒度的任务明细（含操作员、设备）。</li>
+<li><b>作业日志：</b>按单据日期检索的设备动作流水，用于追溯与对账。</li>
+</ul>
+
+<h3 id="s5-5">5.5 PDA 工作台</h3>
+<p>移动端统一入口，2×4 网格八个功能；标题栏左侧"主页"图标返回工作台。</p>
+<table>
+<tr><th>功能</th><th>对应链路</th><th>说明</th></tr>
+<tr><td>码单收录</td><td>入库链路</td><td>扫描箱码收录码单，与 PC 端码单收录同一单据体系</td></tr>
+<tr><td>组托</td><td>入库链路</td><td>扫码组托（件入/传入/手动）</td></tr>
+<tr><td>入库 / 出库</td><td>入库·出库链路</td><td>移动端执行入库上架确认、出库拣货</td></tr>
+<tr><td>移库 / 调拨</td><td>库内管理</td><td>移动端移库；调拨面向仓间/货主间转移</td></tr>
+<tr><td>同步状态查询</td><td>业务闭环</td><td>现场实时查询单据同步 ERP 的状态</td></tr>
+<tr><td>扫托查询</td><td>追溯</td><td>扫托盘号查托盘/箱码/批次/仓位信息</td></tr>
+</table>
+<div class="note">调拨与移库的职责边界（是否必须跨仓）为待定项，见第 9 节 Q3。</div>
+
+<h3 id="s5-6">5.6 基础数据</h3>
+<table>
+<tr><th>模块</th><th>内容</th><th>关键约束</th></tr>
+<tr><td>仓库信息</td><td>仓库编号、名称、ERP 对应仓、类型（立库(自营)/普通仓）</td><td>被单据/仓位引用，删除需校验</td></tr>
+<tr><td>仓位信息</td><td>仓位号（区-列-层-位，如 1-1-1-1）、所属仓库</td><td>立库仓位与设备库位映射</td></tr>
+<tr><td>业务批次</td><td>批号、缸号、物料编号、纱支、原料成分</td><td>与 ERP 物料主数据对应</td></tr>
+<tr><td>库存批次</td><td>批号×仓库×仓位 在库数量（标重/箱数）</td><td>出入库/移库/盘存的结果账</td></tr>
+<tr><td>箱码信息 / 托盘信息</td><td>箱码、托盘号归属与状态</td><td>条码追溯的最小单元</td></tr>
+</table>
+
+<h3 id="s5-7">5.7 系统管理</h3>
+<table>
+<tr><th>模块</th><th>需求要点</th></tr>
+<tr><td>业务字典</td><td>维护枚举值（单据类型、状态等），供各单据下拉引用</td></tr>
+<tr><td>系统设置 / 模块组别 / 功能模块</td><td>系统参数、菜单结构与功能注册（当前五组结构由此驱动）</td></tr>
+<tr><td>用户信息 / 角色设置</td><td>用户与角色管理；角色权限为"模块组→功能模块"两级权限树</td></tr>
+<tr><td>打印模板</td><td>单据打印模板维护，供入库单/出库单/组托单等打印调用</td></tr>
+<tr><td>提醒设置</td><td>业务提醒规则配置</td></tr>
+</table>
+
+<h3 id="s5-8">5.8 列表通用能力（全部 26 个列表模块共享）</h3>
+<h4>FR-12 查询选项</h4>
+<ul>
+<li><b>触发：</b>任一列表工具栏"查询选项"按钮（位于查询输入框左侧）。</li>
+<li><b>处理规则：</b>弹窗列出全部列（首项 (Select All) 联动全选/全不选）；勾选结果持久于当前模块。</li>
+<li><b>结果：</b>"查询"仅按勾选字段做关键字匹配；默认全选。</li>
+</ul>
+<h4>FR-13 列设置</h4>
+<ul>
+<li><b>触发：</b>工具栏"列设置"（仓库信息/仓位信息为"显示设置"，同一功能）。</li>
+<li><b>处理规则：</b>可编辑表格逐列配置：靠齐（默认/居中/靠左/靠右）、列宽（<b>0 = 隐藏该列</b>）、查询（参与快捷查询）、固定（左侧冻结）、折行、排序（未设置/正序/倒序，取首个非未设置列）、合计（数值列底部汇总）；支持行级 上移/下移 调整列顺序、删除（隐藏，可改回列宽恢复）、新增（需数据源配置）。</li>
+<li><b>结果：</b>确定后立即生效并重置分页；取消则还原。</li>
+</ul>
+<h4>FR-14 分页与筛选</h4>
+<ul>
+<li>底部按模块日期字段区间过滤（从/至）；每页 20/50/100；记录数实时显示。</li>
+</ul>
+
+<!-- ================================================================ -->
+<h2 id="s6">6 数据来源与数据出口</h2>
+<h3>6.1 数据来源（三类）</h3>
+<table>
+<tr><th>来源</th><th>覆盖模块</th><th>数据内容</th><th>方向</th></tr>
+<tr><td rowspan="2">A. ERP 单据引入</td><td>出库通知</td><td>发货通知单明细、领料申请单、采购退料单（三源导入）</td><td>ERP → WMS</td></tr>
+<tr><td>收货清单</td><td>ERP 收料/采购/调拨在途数据（供应商、发货单号）</td><td>ERP → WMS</td></tr>
+<tr><td rowspan="3">B. 条码/扫码采集</td><td>码单收录、组托单</td><td>箱码扫描、托盘条码、扫描引入</td><td>现场 → WMS</td></tr>
+<tr><td>PDA 工作台</td><td>码单收录/组托/出入库/移库/调拨/扫托查询 移动采集</td><td>现场 → WMS</td></tr>
+<tr><td>立库扫码终端</td><td>批次任务号扫描、月台选择、任务下架确认</td><td>现场 → WMS → 设备</td></tr>
+<tr><td>C. 手工录入</td><td>全部单据"新建"、基础数据、系统管理</td><td>表单录入（必填项校验）</td><td>人 → WMS</td></tr>
+</table>
+<h3>6.2 数据出口（三类）</h3>
+<table>
+<tr><th>出口</th><th>载体</th><th>数据内容</th><th>触发</th></tr>
+<tr><td>A. 同步 ERP</td><td>入库单 / 出库单</td><td>单据头 + 批次明细（批号、缸号、标重、箱数），回写 ERP 入/出库单号；同步状态 成功/未同步</td><td>单据生效后"同步 ERP"</td></tr>
+<tr><td>B. 打印/导出</td><td>打印模板 + 各列表"打印/导出"</td><td>单据打印（模板驱动）、列表数据导出</td><td>用户操作</td></tr>
+<tr><td>C. 设备指令下发</td><td>仓储任务 / 扫码终端</td><td>选托下架任务 → 输送线/堆垛机；作业结果回流作业日志</td><td>扫码终端"开始作业"</td></tr>
+</table>
+<figure>
+<svg viewBox="0 0 960 320" width="100%">
+<g font-size="12.5">
+<!-- 来源列 -->
+<rect x="15" y="30" width="215" height="255" rx="8" fill="#eef4fb" stroke="#7aa3d6"/>
+<text x="122" y="56" text-anchor="middle" font-weight="bold" fill="#17365d">数据来源</text>
+<rect x="30" y="72" width="185" height="46" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="122" y="92" text-anchor="middle">A · ERP 单据引入</text><text x="122" y="109" text-anchor="middle" font-size="11" fill="#5b7286">出库通知 / 收货清单</text>
+<rect x="30" y="132" width="185" height="46" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="122" y="152" text-anchor="middle">B · 条码/扫码采集</text><text x="122" y="169" text-anchor="middle" font-size="11" fill="#5b7286">PDA · 扫码终端 · 码单收录</text>
+<rect x="30" y="192" width="185" height="46" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="122" y="212" text-anchor="middle">C · 手工录入</text><text x="122" y="229" text-anchor="middle" font-size="11" fill="#5b7286">新建单据 · 基础数据</text>
+<!-- 中心 -->
+<rect x="330" y="55" width="300" height="205" rx="8" fill="#f2f8f4" stroke="#57a773" stroke-width="2"/>
+<text x="480" y="82" text-anchor="middle" font-weight="bold" fill="#1e6b3c">WMS 智能仓储</text>
+<rect x="350" y="98" width="120" height="42" rx="4" fill="#fff" stroke="#57a773"/><text x="410" y="123" text-anchor="middle">作业单据池</text>
+<rect x="490" y="98" width="120" height="42" rx="4" fill="#fff" stroke="#57a773"/><text x="550" y="123" text-anchor="middle">库存台账</text>
+<rect x="350" y="158" width="120" height="42" rx="4" fill="#fff" stroke="#57a773"/><text x="410" y="183" text-anchor="middle">追溯链(箱/托/位)</text>
+<rect x="490" y="158" width="120" height="42" rx="4" fill="#fff" stroke="#57a773"/><text x="550" y="183" text-anchor="middle">基础/系统数据</text>
+<text x="480" y="240" text-anchor="middle" fill="#5b7286" font-size="12">单据 → 台账 → 追溯 三层一致</text>
+<!-- 出口列 -->
+<rect x="730" y="30" width="215" height="255" rx="8" fill="#fdf6ef" stroke="#d8a657"/>
+<text x="837" y="56" text-anchor="middle" font-weight="bold" fill="#7a5a1d">数据出口</text>
+<rect x="745" y="72" width="185" height="46" rx="4" fill="#fff" stroke="#d8a657"/><text x="837" y="92" text-anchor="middle">A · 同步 ERP</text><text x="837" y="109" text-anchor="middle" font-size="11" fill="#5b7286">入库单 / 出库单回写</text>
+<rect x="745" y="132" width="185" height="46" rx="4" fill="#fff" stroke="#d8a657"/><text x="837" y="152" text-anchor="middle">B · 打印 / 导出</text><text x="837" y="169" text-anchor="middle" font-size="11" fill="#5b7286">打印模板 · 列表导出</text>
+<rect x="745" y="192" width="185" height="46" rx="4" fill="#fff" stroke="#d8a657"/><text x="837" y="212" text-anchor="middle">C · 设备指令下发</text><text x="837" y="229" text-anchor="middle" font-size="11" fill="#5b7286">立库任务 → 输送线/堆垛机</text>
+<!-- 箭头 -->
+<line x1="230" y1="95" x2="326" y2="115" stroke="#4a6c96" stroke-width="1.8" marker-end="url(#ar3)"/>
+<line x1="230" y1="155" x2="326" y2="150" stroke="#4a6c96" stroke-width="1.8" marker-end="url(#ar3)"/>
+<line x1="230" y1="215" x2="326" y2="195" stroke="#4a6c96" stroke-width="1.8" marker-end="url(#ar3)"/>
+<line x1="630" y1="115" x2="741" y2="95" stroke="#b07d2b" stroke-width="1.8" marker-end="url(#ar3)"/>
+<line x1="630" y1="150" x2="741" y2="155" stroke="#b07d2b" stroke-width="1.8" marker-end="url(#ar3)"/>
+<line x1="630" y1="195" x2="741" y2="215" stroke="#b07d2b" stroke-width="1.8" marker-end="url(#ar3)"/>
+<path d="M837 246 L837 290 L122 290 L122 289" fill="none" stroke="#8a97a5" stroke-width="1.4" stroke-dasharray="4 3"/>
+<text x="480" y="308" text-anchor="middle" fill="#8a97a5" font-size="12">出口数据（同步结果/作业状态）经 ERP 与现场反馈，再次成为来源 → 构成闭环</text>
+</g>
+</svg>
+<figcaption>图 6 · 数据来源与数据出口总图</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<h2 id="s7">7 业务闭环规则</h2>
+<h3>7.1 环节①：单据引入（ERP → WMS）</h3>
+<ul>
+<li>出库通知仅接受三类 ERP 源单：发货通知单、领料申请单、采购退料单；导入时按 ERP 单号去重，重复导入<b>阻断并提示</b>。</li>
+<li>收货清单接收在途数据，到货前仅作计划参考，不生成库存。</li>
+</ul>
+<h3>7.2 环节②③：仓储执行与台账更新</h3>
+<ul>
+<li>入库以"箱码 → 托盘 → 仓位"三步落账；出库反向消耗，先按批次任务锁库存，下架/拣货确认后扣账。</li>
+<li>移库/盘存仅调整台账内部结构（仓位归属/数量校平），不产生 ERP 往来。</li>
+<li>每一步作业记录经手人 + 时间戳，作业日志不可修改。</li>
+</ul>
+<h3>7.3 环节④：单据生效与回写</h3>
+<ul>
+<li>单据"提交/生效"后才允许同步 ERP；同步内容 = 单据头 + 批次明细 + 回写 ERP 单号。</li>
+<li>同步成功的判定：ERP 单号回填且同步状态 = 成功；此时闭环对该单据关闭。</li>
+</ul>
+<h3>7.4 环节⑤：对账与异常恢复</h3>
+<ul>
+<li>同步状态为"未同步"的单据可重复触发同步（幂等，以 ERP 单号判重）。</li>
+<li>对账不平（WMS 台账 vs ERP 库存）时，以作业日志 + 单据流水定位差异单据，人工核查后重同步或调整。</li>
+<li>自动重试策略与告警渠道 <span class="tbd">[TBD]</span>。</li>
+</ul>
+
+<!-- ================================================================ -->
+<h2 id="s8">8 共享规则与异常</h2>
+<table>
+<tr><th>规则</th><th>定义（全局唯一）</th></tr>
+<tr><td>必填校验</td><td>编辑弹窗保存时校验必填字段，首个空缺项聚焦提示"「字段」为必填项"</td></tr>
+<tr><td>删除约束</td><td>需先选中行；删除前二次确认；生效单据不可删除（仅制作中/制单中可删）<span class="assume">[Assumption，原型未拦截，建议补齐]</span></td></tr>
+<tr><td>行选择</td><td>所有操作（编辑/查看/复制/删除）以列表选中行为前提，未选中时阻断提示</td></tr>
+<tr><td>列配置作用域</td><td>查询选项/列设置按模块独立保存，重开选项卡后重置为默认</td></tr>
+<tr><td>权限可见性</td><td>菜单按角色权限树过滤；未授权模块不渲染入口</td></tr>
+<tr><td>空态</td><td>列表无匹配记录时显示"没有符合条件的记录"，不显示空表格</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2 id="s9">9 待定问题</h2>
+<table>
+<tr><th>编号</th><th>问题</th><th>影响</th></tr>
+<tr><td>Q1</td><td>同步 ERP 失败的自动重试次数、间隔与告警通知渠道</td><td>闭环⑤的自动化程度</td></tr>
+<tr><td>Q2</td><td>盘盈盘亏是否需要审批流及审批角色</td><td>盘存单生命周期</td></tr>
+<tr><td>Q3</td><td>PDA 中"调拨"与"移库"的边界（是否必须跨仓库/跨货主）</td><td>PDA 功能语义与权限</td></tr>
+<tr><td>Q4</td><td>生效单据的冲销/红冲机制（当前仅能查看）</td><td>错单恢复路径</td></tr>
+</table>
+
+<p style="margin-top:36px;color:#8a97a5;font-size:12px;">附：可交互原型位于 <code>d:\prj\wms\prototype</code>（本地 HTTP 服务 http://127.0.0.1:8377 预览）。本文档所有功能描述均以原型已实现行为为依据；标注 [TBD]/[Assumption] 处需业务方确认。</p>
+</main>
+</div>
+</body>
+</html>
