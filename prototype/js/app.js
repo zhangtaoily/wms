@@ -211,7 +211,7 @@
       ["箱码总量", D.ri(20000, 35000), "累计收录箱码"]
     ];
     var s = '<div class="home-inner">';
-    s += '<div class="home-banner"><h1>智能仓储管理系统</h1><p>浙江云梭纺织股份有限公司 · 毛纺智能仓储数字化平台 · YUNSUO WMS V3.69</p></div>';
+    s += '<div class="home-banner"><h1>智能仓储管理系统</h1><p>浙江云梭纺织股份有限公司 · 纱线纺织智能仓储数字化平台 · YUNSUO WMS V3.69</p></div>';
     s += '<div class="home-cards">';
     stats.forEach(function (it) {
       s += '<div class="home-card"><div class="hc-label">' + it[0] + '</div><div class="hc-value">' + it[1].toLocaleString() + '</div><div class="hc-extra">' + it[2] + "</div></div>";
