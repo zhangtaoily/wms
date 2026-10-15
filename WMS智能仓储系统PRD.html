@@ -68,16 +68,16 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 <h2 id="s1">1 背景与目标</h2>
 <p><b>现状问题：</b>纱线纺织产品以"批号 + 缸号 + 箱码"为最小追溯单元，传统 ERP 仓储模块只能管理到单据与数量，无法覆盖以下场景：</p>
 <ul>
-<li>纱线入库前需先收录箱码（码单）、再组托（托盘）上架，人工纸单易错漏；</li>
+<li>原料与成品入库前需先收录箱码（码单）、再组托（托盘）上架，人工纸单易错漏；</li>
 <li>立体仓库（ASRS）设备作业与业务单据脱节，下架/回库依赖人工指挥；</li>
 <li>批号、缸号、标重、纱支、原料成分等行业属性的库存台账与追溯难以支撑；</li>
 <li>仓内作业（移库、盘存、调拨）缺少移动端（PDA）支持。</li>
 </ul>
-<p><b>产品响应：</b>建设独立 WMS，承接 ERP 下游仓储执行：以条码为纽带把单据、箱码、托盘、仓位、设备任务串联起来，并将执行结果回写 ERP。</p>
+<p><b>产品响应：</b>建设独立 WMS，承接 ERP 与 MES 下游的仓储执行：以条码为纽带把单据、箱码、托盘、仓位、设备任务串联起来，并将执行结果回写 ERP。管理物料覆盖原料、半成品、成品等多类，不限于成品。</p>
 <p><b>可观察的目标结果：</b></p>
 <ul>
 <li>任一箱码可追溯到批号、缸号、托盘、仓位、经手人与时间；</li>
-<li>出入库单据从 ERP 引入后，无需重复录单即可完成作业并回写；</li>
+<li>出入库单据从 ERP / MES 引入后，无需重复录单即可完成作业并回写；</li>
 <li>普通仓（人工 + PDA）与立库（扫码终端 + 输送线）在同一单据体系下闭环；</li>
 <li>库存以"库存批次 × 仓位 × 托盘 × 箱码"多粒度实时可见。</li>
 </ul>
@@ -119,9 +119,10 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 </table>
 
 <h3 id="s3-2">3.2 核心业务对象</h3>
+<p>管理物料覆盖<b>原料、半成品、成品</b>等多类；其中产件（成品）箱由车间 MES 出库移交入库，箱码与批号、缸号、标重等属性随箱传递。</p>
 <table>
 <tr><th>类别</th><th>对象</th><th>关键属性（原型字段）</th><th>关系</th></tr>
-<tr><td rowspan="4">作业单据</td><td>收货清单</td><td>收货单号、供应商、发货单号、在途状态</td><td>来源 ERP 在途收料</td></tr>
+<tr><td rowspan="4">作业单据</td><td>收货清单</td><td>收货单号、供应商、发货单号、在途状态</td><td>来源 ERP 在途收料 / MES 产件移交</td></tr>
 <tr><td>码单收录单</td><td>单据编号、业务类型、批号、件量</td><td>生成箱码 → 组托</td></tr>
 <tr><td>组托单</td><td>组托类型（件入/传入/手动）、托盘号、箱码、批号、缸号</td><td>箱码 → 托盘</td></tr>
 <tr><td>入库单 / 出库单</td><td>单号、状态、ERP 单号、仓库、批号、缸号、标重、箱数、同步状态</td><td>回写 ERP 的载体</td></tr>
@@ -162,16 +163,18 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 
 <!-- ================================================================ -->
 <h2 id="s4">4 业务闭环总览</h2>
-<p>系统的核心价值链是一条<b>"ERP 引入 → 仓储执行 → 台账更新 → 回写 ERP → 同步对账"</b>的闭环：</p>
+<p>系统的核心价值链是一条<b>"ERP/MES 引入 → 仓储执行 → 台账更新 → 回写 ERP → 同步对账"</b>的闭环：</p>
 <figure>
 <svg viewBox="0 0 960 300" width="100%">
 <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#2f74b8"/></marker></defs>
 <g font-size="13">
-<!-- ERP -->
-<rect x="20" y="100" width="150" height="90" rx="6" fill="#dce9f6" stroke="#7aa3d6" stroke-width="2"/>
-<text x="95" y="128" text-anchor="middle" font-weight="bold" fill="#17365d">ERP 系统</text>
-<text x="95" y="150" text-anchor="middle" fill="#41586c" font-size="12">销售/采购/生产单据</text>
-<text x="95" y="170" text-anchor="middle" fill="#41586c" font-size="12">（发货通知·收料·领料）</text>
+<!-- ERP / MES -->
+<rect x="20" y="64" width="150" height="68" rx="6" fill="#dce9f6" stroke="#7aa3d6" stroke-width="2"/>
+<text x="95" y="90" text-anchor="middle" font-weight="bold" fill="#17365d">ERP 系统</text>
+<text x="95" y="112" text-anchor="middle" fill="#41586c" font-size="12">发货通知·收料·领料</text>
+<rect x="20" y="160" width="150" height="68" rx="6" fill="#fdf3e7" stroke="#d8a657" stroke-width="2"/>
+<text x="95" y="186" text-anchor="middle" font-weight="bold" fill="#7a5a1d">MES 系统</text>
+<text x="95" y="208" text-anchor="middle" fill="#8a6d3b" font-size="12">车间产件出库·成品箱移交</text>
 <!-- 闭环五环节 -->
 <rect x="240" y="20" width="170" height="56" rx="6" fill="#fff" stroke="#4a90d9"/>
 <text x="325" y="43" text-anchor="middle" font-weight="bold" fill="#1f4e79">① 单据引入</text>
@@ -184,7 +187,7 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 <text x="325" y="259" text-anchor="middle" fill="#5b7286" font-size="12">库存批次·托盘·箱码·仓位</text>
 <rect x="470" y="216" width="170" height="56" rx="6" fill="#fff" stroke="#4a90d9"/>
 <text x="555" y="239" text-anchor="middle" font-weight="bold" fill="#1f4e79">④ 单据生效回写</text>
-<text x="555" y="259" text-anchor="middle" fill="#5b7286" font-size="12">入库单/出库单 → 同步ERP</text>
+<text x="555" y="259" text-anchor="middle" fill="#5b7286" font-size="12">入/出库·移库 → 同步ERP</text>
 <rect x="470" y="20" width="170" height="56" rx="6" fill="#fff" stroke="#4a90d9"/>
 <text x="555" y="43" text-anchor="middle" font-weight="bold" fill="#1f4e79">⑤ 同步对账</text>
 <text x="555" y="63" text-anchor="middle" fill="#5b7286" font-size="12">同步状态监控·失败重试</text>
@@ -194,7 +197,9 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 <text x="820" y="148" text-anchor="middle" fill="#4a6250" font-size="12">PDA 手持终端 · 立库扫码终端</text>
 <text x="820" y="168" text-anchor="middle" fill="#4a6250" font-size="12">条码扫描 · 组托 · 月台下架</text>
 <!-- 箭头 -->
-<line x1="170" y1="118" x2="236" y2="66" stroke="#2f74b8" stroke-width="1.8" marker-end="url(#ar2)"/>
+<line x1="170" y1="98" x2="236" y2="52" stroke="#2f74b8" stroke-width="1.8" marker-end="url(#ar2)"/>
+<line x1="170" y1="194" x2="236" y2="146" stroke="#b07d2b" stroke-width="1.8" marker-end="url(#ar2)"/>
+<text x="203" y="186" text-anchor="middle" fill="#b07d2b" font-size="11">产件箱移交</text>
 <line x1="325" y1="76" x2="325" y2="114" stroke="#2f74b8" stroke-width="1.8" marker-end="url(#ar2)"/>
 <line x1="325" y1="174" x2="325" y2="212" stroke="#2f74b8" stroke-width="1.8" marker-end="url(#ar2)"/>
 <line x1="410" y1="244" x2="466" y2="244" stroke="#2f74b8" stroke-width="1.8" marker-end="url(#ar2)"/>
@@ -207,9 +212,9 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 <text x="790" y="236" fill="#7a5a1d" font-size="12">⑤对账不平时 → 人工核查</text>
 </g>
 </svg>
-<figcaption>图 2 · 业务闭环总图：ERP 与作业现场通过五环节形成双向闭环</figcaption>
+<figcaption>图 2 · 业务闭环总图：ERP（单据引入）与 MES（产件箱移交）共同驱动，与作业现场通过五环节形成双向闭环</figcaption>
 </figure>
-<p><b>闭环成立的判定条件：</b>任一 ERP 引入单据，最终呈现"出/入库单 <span class="tag">生效</span> + <span class="tag">同步成功</span>"两个终态；若同步未成功，停留在 <span class="tag">未同步</span> 并可再次触发同步（见 7.4）。</p>
+<p><b>闭环成立的判定条件：</b>任一引入单据（ERP 单据 / MES 产件），最终呈现"出/入库单 <span class="tag">生效</span> + <span class="tag">同步成功</span>"两个终态；若同步未成功，停留在 <span class="tag">未同步</span> 并可再次触发同步（见 7.4）。</p>
 
 <!-- ================================================================ -->
 <h2 id="s5">5 功能需求</h2>
@@ -222,7 +227,7 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 <g font-size="12.5">
 <!-- 泳道 -->
 <rect x="60" y="10" width="890" height="88" fill="#eef4fb" stroke="#c4d5e8"/>
-<text x="20" y="58" fill="#17365d" font-weight="bold" writing-mode="tb" letter-spacing="4">ERP系统</text>
+<text x="20" y="58" fill="#17365d" font-weight="bold" writing-mode="tb" letter-spacing="4">ERP / MES</text>
 <rect x="60" y="106" width="890" height="88" fill="#f2f8f4" stroke="#c4ddcc"/>
 <text x="20" y="154" fill="#1e6b3c" font-weight="bold" writing-mode="tb" letter-spacing="4">WMS单据</text>
 <rect x="60" y="202" width="890" height="88" fill="#faf6ef" stroke="#e2d5bb"/>
@@ -232,6 +237,7 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 <!-- 节点 -->
 <g>
 <rect x="90" y="34" width="150" height="42" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="165" y="59" text-anchor="middle">ERP 收料/生产/调拨单</text>
+<rect x="270" y="34" width="170" height="42" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="355" y="53" text-anchor="middle">MES 出库成品箱</text><text x="355" y="70" text-anchor="middle" font-size="11" fill="#5b7286">产件移交·箱码/批次属性随箱</text>
 <rect x="100" y="130" width="130" height="42" rx="4" fill="#fff" stroke="#57a773"/><text x="165" y="155" text-anchor="middle">收货清单（在途）</text>
 <rect x="280" y="130" width="130" height="42" rx="4" fill="#fff" stroke="#57a773"/><text x="345" y="155" text-anchor="middle">码单收录</text>
 <rect x="460" y="130" width="130" height="42" rx="4" fill="#fff" stroke="#57a773"/><text x="345" y="0" ></text><text x="525" y="155" text-anchor="middle">组托单</text>
@@ -245,6 +251,7 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 </g>
 <!-- 箭头 -->
 <line x1="165" y1="76" x2="165" y2="126" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
+<line x1="355" y1="76" x2="348" y2="126" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
 <line x1="230" y1="151" x2="276" y2="151" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
 <line x1="410" y1="151" x2="456" y2="151" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
 <line x1="590" y1="151" x2="636" y2="151" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
@@ -268,7 +275,7 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 </ul>
 <h4>FR-02 码单收录</h4>
 <ul>
-<li><b>触发：</b>仓管员在 PC 或 PDA 上对到货纱箱逐一扫描箱码。</li>
+<li><b>触发：</b>仓管员在 PC 或 PDA 上对到货物料箱逐一扫描箱码；产件入库的成品箱由车间 MES 出库移交，箱码与批号、缸号、标重属性随箱传递。</li>
 <li><b>处理规则：</b>按业务类型（采购入库/产件入库/调拨入库/销售入库等）建单；每箱记录批号、缸号、标重；单据明细支持"扫描引入"。</li>
 <li><b>结果：</b>生成箱码台账（箱码信息），累计件量；为组托提供箱码池。</li>
 </ul>
@@ -357,7 +364,7 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 <line x1="185" y1="75" x2="221" y2="75" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
 <line x1="325" y1="75" x2="361" y2="75" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#ar3)"/>
 <text x="265" y="130" text-anchor="middle" fill="#5b7286" font-size="12">类型：托盘挪库·编码移库·批次移库·空托移库（立库移库由仓储任务执行）</text>
-<text x="265" y="152" text-anchor="middle" fill="#5b7286" font-size="12">不改变批次数量，仅改变仓位/托盘归属</text>
+<text x="265" y="152" text-anchor="middle" fill="#5b7286" font-size="12">不改变批次数量，仅改变仓位/托盘归属；生效后同步 ERP 仓位</text>
 <rect x="500" y="15" width="450" height="150" fill="#eef4fb" stroke="#c4d5e8"/>
 <text x="725" y="38" text-anchor="middle" font-weight="bold" fill="#17365d">盘存</text>
 <rect x="525" y="55" width="90" height="40" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="570" y="79" text-anchor="middle">盘存单</text>
@@ -375,7 +382,7 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 <ul>
 <li><b>触发：</b>仓管员新建移库单（PC/PDA 均可发起）。</li>
 <li><b>处理规则：</b>四种类型（托盘挪库/编码移库/批次移库/空托移库）；记录源仓位与目标仓位；明细按托盘/箱/批次层级。</li>
-<li><b>结果：</b>生效后更新托盘与箱码的仓位归属，库存批次总量不变；不回写 ERP（内部调整）。</li>
+<li><b>结果：</b>生效后更新托盘与箱码的仓位归属，库存批次总量不变；因 <b>ERP 启用仓位（货位）管理</b>，移库生效后须将仓位变更同步回 ERP（数量不变、仅仓位转移），避免两边库位不一致；同步状态机制与出/入库单一致（成功 / 未同步，可重试，见 7.4）。</li>
 </ul>
 <h4>FR-09 盘存单</h4>
 <ul>
@@ -449,20 +456,21 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 
 <!-- ================================================================ -->
 <h2 id="s6">6 数据来源与数据出口</h2>
-<h3>6.1 数据来源（三类）</h3>
+<h3>6.1 数据来源（四类）</h3>
 <table>
 <tr><th>来源</th><th>覆盖模块</th><th>数据内容</th><th>方向</th></tr>
 <tr><td rowspan="2">A. ERP 单据引入</td><td>出库通知</td><td>发货通知单明细、领料申请单、采购退料单（三源导入）</td><td>ERP → WMS</td></tr>
 <tr><td>收货清单</td><td>ERP 收料/采购/调拨在途数据（供应商、发货单号）</td><td>ERP → WMS</td></tr>
-<tr><td rowspan="3">B. 条码/扫码采集</td><td>码单收录、组托单</td><td>箱码扫描、托盘条码、扫描引入</td><td>现场 → WMS</td></tr>
+<tr><td>B. MES 出库移交</td><td>码单收录 / 入库单（产件入库）</td><td>MES 出库的成品箱：箱码、批号、缸号、标重等属性随箱传递，无需重复录入</td><td>MES → WMS</td></tr>
+<tr><td rowspan="3">C. 条码/扫码采集</td><td>码单收录、组托单</td><td>箱码扫描、托盘条码、扫描引入</td><td>现场 → WMS</td></tr>
 <tr><td>PDA 工作台</td><td>码单收录/组托/出入库/移库/调拨/扫托查询 移动采集</td><td>现场 → WMS</td></tr>
 <tr><td>立库扫码终端</td><td>批次任务号扫描、月台选择、任务下架确认</td><td>现场 → WMS → 设备</td></tr>
-<tr><td>C. 手工录入</td><td>全部单据"新建"、基础数据、系统管理</td><td>表单录入（必填项校验）</td><td>人 → WMS</td></tr>
+<tr><td>D. 手工录入</td><td>全部单据"新建"、基础数据、系统管理</td><td>表单录入（必填项校验）</td><td>人 → WMS</td></tr>
 </table>
 <h3>6.2 数据出口（三类）</h3>
 <table>
 <tr><th>出口</th><th>载体</th><th>数据内容</th><th>触发</th></tr>
-<tr><td>A. 同步 ERP</td><td>入库单 / 出库单</td><td>单据头 + 批次明细（批号、缸号、标重、箱数），回写 ERP 入/出库单号；同步状态 成功/未同步</td><td>单据生效后"同步 ERP"</td></tr>
+<tr><td>A. 同步 ERP</td><td>入库单 / 出库单 / 移库单</td><td>单据头 + 批次明细（批号、缸号、标重、箱数），回写 ERP 入/出库单号；移库单回写仓位变更（ERP 启用仓位管理）；同步状态 成功/未同步</td><td>单据生效后"同步 ERP"</td></tr>
 <tr><td>B. 打印/导出</td><td>打印模板 + 各列表"打印/导出"</td><td>单据打印（模板驱动）、列表数据导出</td><td>用户操作</td></tr>
 <tr><td>C. 设备指令下发</td><td>仓储任务 / 扫码终端</td><td>选托下架任务 → 输送线/堆垛机；作业结果回流作业日志</td><td>扫码终端"开始作业"</td></tr>
 </table>
@@ -473,8 +481,9 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 <rect x="15" y="30" width="215" height="255" rx="8" fill="#eef4fb" stroke="#7aa3d6"/>
 <text x="122" y="56" text-anchor="middle" font-weight="bold" fill="#17365d">数据来源</text>
 <rect x="30" y="72" width="185" height="46" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="122" y="92" text-anchor="middle">A · ERP 单据引入</text><text x="122" y="109" text-anchor="middle" font-size="11" fill="#5b7286">出库通知 / 收货清单</text>
-<rect x="30" y="132" width="185" height="46" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="122" y="152" text-anchor="middle">B · 条码/扫码采集</text><text x="122" y="169" text-anchor="middle" font-size="11" fill="#5b7286">PDA · 扫码终端 · 码单收录</text>
-<rect x="30" y="192" width="185" height="46" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="122" y="212" text-anchor="middle">C · 手工录入</text><text x="122" y="229" text-anchor="middle" font-size="11" fill="#5b7286">新建单据 · 基础数据</text>
+<rect x="30" y="126" width="185" height="46" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="122" y="146" text-anchor="middle">B · MES 出库移交</text><text x="122" y="163" text-anchor="middle" font-size="11" fill="#5b7286">产件入库成品箱·属性随箱</text>
+<rect x="30" y="180" width="185" height="46" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="122" y="200" text-anchor="middle">C · 条码/扫码采集</text><text x="122" y="217" text-anchor="middle" font-size="11" fill="#5b7286">PDA · 扫码终端 · 码单收录</text>
+<rect x="30" y="234" width="185" height="46" rx="4" fill="#fff" stroke="#7aa3d6"/><text x="122" y="254" text-anchor="middle">D · 手工录入</text><text x="122" y="271" text-anchor="middle" font-size="11" fill="#5b7286">新建单据 · 基础数据</text>
 <!-- 中心 -->
 <rect x="330" y="55" width="300" height="205" rx="8" fill="#f2f8f4" stroke="#57a773" stroke-width="2"/>
 <text x="480" y="82" text-anchor="middle" font-weight="bold" fill="#1e6b3c">WMS 智能仓储</text>
@@ -486,13 +495,14 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 <!-- 出口列 -->
 <rect x="730" y="30" width="215" height="255" rx="8" fill="#fdf6ef" stroke="#d8a657"/>
 <text x="837" y="56" text-anchor="middle" font-weight="bold" fill="#7a5a1d">数据出口</text>
-<rect x="745" y="72" width="185" height="46" rx="4" fill="#fff" stroke="#d8a657"/><text x="837" y="92" text-anchor="middle">A · 同步 ERP</text><text x="837" y="109" text-anchor="middle" font-size="11" fill="#5b7286">入库单 / 出库单回写</text>
+<rect x="745" y="72" width="185" height="46" rx="4" fill="#fff" stroke="#d8a657"/><text x="837" y="92" text-anchor="middle">A · 同步 ERP</text><text x="837" y="109" text-anchor="middle" font-size="11" fill="#5b7286">入/出库单·移库仓位回写</text>
 <rect x="745" y="132" width="185" height="46" rx="4" fill="#fff" stroke="#d8a657"/><text x="837" y="152" text-anchor="middle">B · 打印 / 导出</text><text x="837" y="169" text-anchor="middle" font-size="11" fill="#5b7286">打印模板 · 列表导出</text>
 <rect x="745" y="192" width="185" height="46" rx="4" fill="#fff" stroke="#d8a657"/><text x="837" y="212" text-anchor="middle">C · 设备指令下发</text><text x="837" y="229" text-anchor="middle" font-size="11" fill="#5b7286">立库任务 → 输送线/堆垛机</text>
 <!-- 箭头 -->
-<line x1="230" y1="95" x2="326" y2="115" stroke="#4a6c96" stroke-width="1.8" marker-end="url(#ar3)"/>
-<line x1="230" y1="155" x2="326" y2="150" stroke="#4a6c96" stroke-width="1.8" marker-end="url(#ar3)"/>
-<line x1="230" y1="215" x2="326" y2="195" stroke="#4a6c96" stroke-width="1.8" marker-end="url(#ar3)"/>
+<line x1="230" y1="95" x2="326" y2="105" stroke="#4a6c96" stroke-width="1.8" marker-end="url(#ar3)"/>
+<line x1="230" y1="149" x2="326" y2="135" stroke="#4a6c96" stroke-width="1.8" marker-end="url(#ar3)"/>
+<line x1="230" y1="203" x2="326" y2="165" stroke="#4a6c96" stroke-width="1.8" marker-end="url(#ar3)"/>
+<line x1="230" y1="257" x2="326" y2="195" stroke="#4a6c96" stroke-width="1.8" marker-end="url(#ar3)"/>
 <line x1="630" y1="115" x2="741" y2="95" stroke="#b07d2b" stroke-width="1.8" marker-end="url(#ar3)"/>
 <line x1="630" y1="150" x2="741" y2="155" stroke="#b07d2b" stroke-width="1.8" marker-end="url(#ar3)"/>
 <line x1="630" y1="195" x2="741" y2="215" stroke="#b07d2b" stroke-width="1.8" marker-end="url(#ar3)"/>
@@ -505,20 +515,21 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 
 <!-- ================================================================ -->
 <h2 id="s7">7 业务闭环规则</h2>
-<h3>7.1 环节①：单据引入（ERP → WMS）</h3>
+<h3>7.1 环节①：单据引入（ERP / MES → WMS）</h3>
 <ul>
 <li>出库通知仅接受三类 ERP 源单：发货通知单、领料申请单、采购退料单；导入时按 ERP 单号去重，重复导入<b>阻断并提示</b>。</li>
 <li>收货清单接收在途数据，到货前仅作计划参考，不生成库存。</li>
+<li>产件入库的成品箱来自车间 <b>MES 出库移交</b>：箱码与批号、缸号、标重等属性随箱传递，WMS 收货时核对，不一致则提示人工处理 [Assumption]。</li>
 </ul>
 <h3>7.2 环节②③：仓储执行与台账更新</h3>
 <ul>
 <li>入库以"箱码 → 托盘 → 仓位"三步落账；出库反向消耗，先按批次任务锁库存，下架/拣货确认后扣账。</li>
-<li>移库/盘存仅调整台账内部结构（仓位归属/数量校平），不产生 ERP 往来。</li>
+<li>移库/盘存调整台账内部结构（仓位归属/数量校平）；移库因 ERP 启用仓位管理，生效后须同步仓位变更（见 7.3），盘盈亏调整是否回写 ERP 为待定项（Q2）。</li>
 <li>每一步作业记录经手人 + 时间戳，作业日志不可修改。</li>
 </ul>
 <h3>7.3 环节④：单据生效与回写</h3>
 <ul>
-<li>单据"提交/生效"后才允许同步 ERP；同步内容 = 单据头 + 批次明细 + 回写 ERP 单号。</li>
+<li>单据"提交/生效"后才允许同步 ERP；同步内容 = 单据头 + 批次明细 + 回写 ERP 单号；<b>移库单</b>同步仓位变更明细（源仓位 → 目标仓位，数量不变）。</li>
 <li>同步成功的判定：ERP 单号回填且同步状态 = 成功；此时闭环对该单据关闭。</li>
 </ul>
 <h3>7.4 环节⑤：对账与异常恢复</h3>
@@ -545,7 +556,7 @@ svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
 <table>
 <tr><th>编号</th><th>问题</th><th>影响</th></tr>
 <tr><td>Q1</td><td>同步 ERP 失败的自动重试次数、间隔与告警通知渠道</td><td>闭环⑤的自动化程度</td></tr>
-<tr><td>Q2</td><td>盘盈盘亏是否需要审批流及审批角色</td><td>盘存单生命周期</td></tr>
+<tr><td>Q2</td><td>盘盈盘亏是否需要审批流及审批角色；盘盈亏调整是否回写 ERP（数量变更）</td><td>盘存单生命周期；ERP 账实一致性</td></tr>
 <tr><td>Q3</td><td>PDA 中"调拨"与"移库"的边界（是否必须跨仓库/跨货主）</td><td>PDA 功能语义与权限</td></tr>
 <tr><td>Q4</td><td>生效单据的冲销/红冲机制（当前仅能查看）</td><td>错单恢复路径</td></tr>
 </table>

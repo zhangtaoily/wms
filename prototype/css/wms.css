@@ -438,3 +438,53 @@ table.grid td.wrapcell { white-space: normal; word-break: break-all; }
 .pda-item:active { background: #d5e3f2; }
 .pda-item svg { width: 54px; height: 54px; display: block; }
 .pda-item .p-label { font-size: 13px; color: #333; }
+/* PDA 二级作业页 */
+.pda-back { position: absolute; left: 8px; width: 40px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #333; cursor: pointer; border-radius: 6px; line-height: 1; user-select: none; }
+.pda-back:hover { background: #d3d7dc; }
+.pda-home.r { left: auto; right: 10px; }
+.pda-body { flex: 1; overflow-y: auto; background: #eceff3; }
+.pda-scan { display: flex; gap: 6px; padding: 8px 10px; background: #fff; border-bottom: 1px solid #d9dee4; }
+.pda-scan input { flex: 1; min-width: 0; border: 1px solid #b8c2cc; border-radius: 5px; height: 34px; padding: 0 8px; font: 12px/34px "宋体"; background: #f7fafc; color: #17365d; }
+.pda-btn { border: 1px solid #2f74b8; background: linear-gradient(#5b9bd5, #2f74b8); color: #fff; border-radius: 5px; height: 34px; padding: 0 14px; font: bold 12px "宋体"; cursor: pointer; }
+.pda-btn:hover { filter: brightness(1.08); }
+.pda-btn.big { flex: 1; height: 42px; font-size: 14px; }
+.pda-sec { padding: 8px 10px 4px; font-size: 12px; color: #5b7286; }
+.pda-row { display: flex; align-items: center; gap: 8px; background: #fff; border-bottom: 1px solid #e7ebef; padding: 8px 10px; }
+.pda-row[data-row] { cursor: pointer; }
+.pda-row[data-row]:hover { background: #eef4fb; }
+.pda-row[data-act="check"] { cursor: pointer; }
+.pda-row[data-act="check"]:hover { background: #eef4fb; }
+.pr-main { flex: 1; min-width: 0; }
+.pr-no { font-size: 13px; color: #17365d; font-weight: bold; }
+.pr-sub { font-size: 11px; color: #7b8a99; margin-top: 2px; }
+.pr-type { font-size: 11px; font-weight: normal; color: #7b8a99; }
+.pr-x { color: #b03a2e; font-size: 14px; cursor: pointer; padding: 4px 6px; }
+.pr-x:hover { color: #7c241b; }
+.pr-go { color: #98a4af; font-size: 18px; }
+.pda-card { background: #fff; border: 1px solid #d9dee4; border-radius: 6px; margin: 8px 10px; padding: 10px; }
+.pc-title { font-size: 13px; font-weight: bold; color: #17365d; margin-bottom: 6px; }
+.pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 12px; }
+.pc-grid .k { color: #7b8a99; }
+.pc-grid .v { color: #333; font-weight: bold; text-align: right; }
+.pda-tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 3px; border: 1px solid #c5cdd4; background: #f1f3f5; color: #5b7286; white-space: nowrap; }
+.pda-tag.ok { background: #e3f2e8; color: #1e6b3c; border-color: #9fd0b0; }
+.pda-tag.warn { background: #fdf3e7; color: #8a5a00; border-color: #e8c98a; }
+.pda-tag.err { background: #fbe9e7; color: #a0352b; border-color: #e6a496; }
+.pda-tag.info { background: #e8f1fa; color: #1f4e79; border-color: #a8c6e2; }
+.pda-types { display: flex; gap: 6px; padding: 8px 10px 2px; }
+.pda-types .pda-tag { cursor: pointer; }
+.pda-tag.on { background: #2f74b8; border-color: #1f5a99; color: #fff; }
+.pda-mini { font-size: 11px; border: 1px solid #2f74b8; color: #2f74b8; background: #fff; border-radius: 3px; padding: 2px 8px; cursor: pointer; }
+.pda-mini:hover { background: #e8f1fa; }
+.pda-foot { flex: none; display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: #fff; border-top: 1px solid #d9dee4; }
+.pda-stat { font-size: 12px; color: #5b7286; white-space: nowrap; }
+.pda-stat b { color: #17365d; font-size: 15px; }
+.pda-empty { text-align: center; color: #9aa8b5; font-size: 12px; padding: 46px 20px; line-height: 2; }
+.pda-step { background: #fff; border: 1px solid #d9dee4; border-radius: 6px; margin: 8px 10px; padding: 10px; }
+.ps-t { font-size: 12px; font-weight: bold; color: #17365d; margin-bottom: 8px; }
+.ps-row { display: flex; gap: 8px; align-items: center; }
+.ps-v { flex: 1; min-width: 0; border: 1px dashed #b8c2cc; border-radius: 5px; height: 34px; line-height: 34px; padding: 0 10px; font-size: 13px; color: #17365d; background: #f7fafc; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ps-info { font-size: 11px; color: #5b7286; margin-top: 6px; }
+.pda-note { font-size: 11px; color: #8a97a5; padding: 2px 12px 10px; line-height: 1.7; }
+.pda-selrow { display: flex; gap: 8px; align-items: center; background: #fff; border-bottom: 1px solid #e7ebef; padding: 8px 10px; font-size: 12px; color: #5b7286; }
+.pda-selrow select { flex: 1; min-width: 0; height: 30px; border: 1px solid #b8c2cc; border-radius: 4px; font: 12px "宋体"; background: #fff; color: #333; }

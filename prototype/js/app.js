@@ -986,30 +986,332 @@
     home: '<svg viewBox="0 0 26 26"><circle cx="13" cy="13" r="12" fill="#8d9aa8"/><path d="M6.5 13 L13 6.5 L19.5 13 M8.5 12 V19.5 H17.5 V12" stroke="#fff" stroke-width="1.9" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>'
   };
 
-  function buildPda() {
-    var p = document.createElement("div");
-    p.className = "page pda-page";
-    p.id = "page-pdaWork";
+  /* ---- PDA 状态与视图 ---- */
+  var pdaState = null;
+  function pdaReset(view) {
+    pdaState = {
+      view: view || "home", codeType: "产件入库", codeList: [],
+      palletNo: "", palletList: [],
+      inList: null, inDoc: null, inBoxes: null,
+      outList: null, outDoc: null, outBoxes: null, outChecked: {},
+      mvPallet: "", mvInfo: null, mvLoc: "",
+      trFrom: 0, trTo: 1, trPallet: "", trInfo: null,
+      syncList: null, scanResult: null
+    };
+  }
+
+  function pdaHead(title, back) {
+    return '<div class="pda-head">'
+      + (back ? '<span class="pda-back" data-act="back" title="返回工作台">‹</span>'
+              : '<span class="pda-home" data-act="home" title="主页">' + PDA_ICONS.home + '</span>')
+      + '<span class="p-title">' + title + '</span>'
+      + (back ? '<span class="pda-home r" data-act="home" title="主页">' + PDA_ICONS.home + '</span>' : '')
+      + '</div>';
+  }
+
+  function pdaTag(txt, cls) { return '<span class="pda-tag ' + cls + '">' + txt + '</span>'; }
+
+  function pdaBoxes(n) {
+    var a = [], i;
+    for (i = 0; i < n; i++) a.push({ box: WMS_DATA.boxCode(), batch: WMS_DATA.batchNo(), vat: WMS_DATA.vatNo(), w: (WMS_DATA.ri(150, 320) / 10).toFixed(1) });
+    return a;
+  }
+
+  function pdaBoxRows(list, act) {
+    return list.map(function (b, i) {
+      return '<div class="pda-row"><div class="pr-main"><div class="pr-no">' + b.box + '</div><div class="pr-sub">' + b.batch + ' · 缸号 ' + b.vat + ' · 标重 ' + b.w + 'KG</div></div>'
+        + (act ? '<span class="pr-x" data-act="' + act + '" data-i="' + i + '">✕</span>' : '') + '</div>';
+    }).join("");
+  }
+
+  function vHome() {
     var funcs = [
       ["code", "码单收录"], ["pallet", "组托"],
       ["inbound", "入库"], ["outbound", "出库"],
       ["move", "移库"], ["transfer", "调拨"],
       ["sync", "同步状态查询"], ["scanP", "扫托查询"]
     ];
-    var s = '<div class="pda-frame">';
-    s += '<div class="pda-head"><span class="pda-home" data-act="home" title="主页">' + PDA_ICONS.home + '</span><span class="p-title">工作台</span></div>';
+    var s = pdaHead("工作台", false);
     s += '<div class="pda-grid">';
     funcs.forEach(function (f) {
-      s += '<div class="pda-item" data-f="' + f[0] + '" data-name="' + f[1] + '">' + PDA_ICONS[f[0]] + '<span class="p-label">' + f[1] + "</span></div>";
+      s += '<div class="pda-item" data-f="' + f[0] + '">' + PDA_ICONS[f[0]] + '<span class="p-label">' + f[1] + "</span></div>";
     });
-    s += "</div></div>";
-    p.innerHTML = s;
+    s += "</div>";
+    return s;
+  }
+
+  function vCode() {
+    var st = pdaState, last = st.codeList.length ? st.codeList[0].box : "";
+    var s = pdaHead("码单收录", true);
+    s += '<div class="pda-body">';
+    s += '<div class="pda-scan"><input type="text" readonly value="' + last + '" placeholder="扫描箱码…"><button class="pda-btn" data-act="scanCode">扫描</button></div>';
+    s += '<div class="pda-types">';
+    ["产件入库", "采购入库", "调拨入库"].forEach(function (t) {
+      s += '<span class="pda-tag' + (st.codeType === t ? " on" : "") + '" data-act="codeType" data-t="' + t + '">' + t + '</span>';
+    });
+    s += '</div>';
+    s += '<div class="pda-sec">已收录 ' + st.codeList.length + ' 箱' + (st.codeType === "产件入库" ? '（MES 移交箱，属性随箱核对）' : '') + '</div>';
+    s += st.codeList.length ? pdaBoxRows(st.codeList, "delCode") : '<div class="pda-empty">尚未扫描箱码<br>点击「扫描」模拟扫码枪收录</div>';
+    s += '</div>';
+    s += '<div class="pda-foot"><span class="pda-stat">已收录 <b>' + st.codeList.length + '</b> 箱</span><button class="pda-btn big" data-act="submitCode">提交码单</button></div>';
+    return s;
+  }
+
+  function vPallet() {
+    var st = pdaState;
+    var s = pdaHead("组托", true);
+    s += '<div class="pda-body">';
+    if (!st.palletNo) {
+      s += '<div class="pda-scan"><input type="text" readonly placeholder="扫描托盘条码…"><button class="pda-btn" data-act="scanPallet">扫描</button></div>';
+      s += '<div class="pda-empty">先扫描空托盘条码<br>建立组托后再扫箱码入托</div>';
+    } else {
+      s += '<div class="pda-card"><div class="pc-title">托盘 ' + st.palletNo + '</div><div class="pc-grid">'
+        + '<span class="k">组托方式</span><span class="v">件入托</span>'
+        + '<span class="k">已入箱数</span><span class="v">' + st.palletList.length + ' 箱</span></div></div>';
+      s += '<div class="pda-scan"><input type="text" readonly value="' + (st.palletList.length ? st.palletList[0].box : "") + '" placeholder="扫描箱码入托…"><button class="pda-btn" data-act="scanPallet">扫描</button></div>';
+      s += '<div class="pda-sec">托内箱码（' + st.palletList.length + '）</div>';
+      s += st.palletList.length ? pdaBoxRows(st.palletList, "delBox") : '<div class="pda-empty">扫描箱码加入本托盘</div>';
+    }
+    s += '</div>';
+    if (st.palletNo) s += '<div class="pda-foot"><span class="pda-stat">同托箱码归属同一托盘号</span><button class="pda-btn big" data-act="donePallet">完成组托</button></div>';
+    return s;
+  }
+
+  function vIn() {
+    var st = pdaState;
+    if (!st.inList) {
+      var all = WMS_DATA.inbound();
+      var pend = all.filter(function (r) { return r.status !== "生效"; });
+      st.inList = (pend.length ? pend : all).slice(0, 5);
+    }
+    var s = pdaHead("入库上架", true);
+    s += '<div class="pda-body"><div class="pda-sec">待上架单据（点选进入明细）</div>';
+    st.inList.forEach(function (r, i) {
+      s += '<div class="pda-row" data-row="in" data-i="' + i + '"><div class="pr-main"><div class="pr-no">' + r.no + '</div><div class="pr-sub">' + r.wh + ' · ' + r.boxes + ' 箱 · ' + r.weight + 'KG · ' + r.batch + '</div></div>' + pdaTag("待上架", "warn") + '<span class="pr-go">›</span></div>';
+    });
+    s += '</div>';
+    return s;
+  }
+
+  function vInD() {
+    var st = pdaState, r = st.inDoc;
+    if (!st.inBoxes) st.inBoxes = pdaBoxes(4);
+    var s = pdaHead("入库单 " + r.no, true);
+    s += '<div class="pda-body">';
+    s += '<div class="pda-card"><div class="pc-title">' + r.no + '</div><div class="pc-grid">'
+      + '<span class="k">仓库</span><span class="v">' + r.wh + '</span>'
+      + '<span class="k">入库类型</span><span class="v">' + r.inType + '</span>'
+      + '<span class="k">批号 / 缸号</span><span class="v">' + r.batch + ' / ' + r.vat + '</span>'
+      + '<span class="k">箱数 / 重量</span><span class="v">' + r.boxes + ' 箱 / ' + r.weight + 'KG</span></div></div>';
+    s += '<div class="pda-sec">箱明细与建议仓位</div>';
+    st.inBoxes.forEach(function (b) {
+      s += '<div class="pda-row"><div class="pr-main"><div class="pr-no">' + b.box + '</div><div class="pr-sub">' + b.batch + ' · ' + b.w + 'KG</div></div>' + pdaTag("仓位 " + WMS_DATA.locNo(), "info") + '</div>';
+    });
+    s += '</div>';
+    s += '<div class="pda-foot"><span class="pda-stat">上架后生成入库单台账</span><button class="pda-btn big" data-act="confirmUp">上架确认</button></div>';
+    return s;
+  }
+
+  function vOut() {
+    var st = pdaState;
+    if (!st.outList) st.outList = WMS_DATA.outbound().slice(0, 5);
+    var s = pdaHead("出库拣货", true);
+    s += '<div class="pda-body"><div class="pda-sec">待拣货任务（点选进入明细）</div>';
+    st.outList.forEach(function (r, i) {
+      s += '<div class="pda-row" data-row="out" data-i="' + i + '"><div class="pr-main"><div class="pr-no">' + r.no + '</div><div class="pr-sub">' + r.customer + ' · ' + r.boxes + ' 箱 · ' + r.weight + 'KG</div></div>' + pdaTag("待拣货", "warn") + '<span class="pr-go">›</span></div>';
+    });
+    s += '</div>';
+    return s;
+  }
+
+  function vOutD() {
+    var st = pdaState, r = st.outDoc, done = 0, k;
+    if (!st.outBoxes) st.outBoxes = pdaBoxes(5);
+    for (k in st.outChecked) if (st.outChecked[k]) done++;
+    var s = pdaHead("出库单 " + r.no, true);
+    s += '<div class="pda-body">';
+    s += '<div class="pda-card"><div class="pc-title">' + r.no + '</div><div class="pc-grid">'
+      + '<span class="k">客户</span><span class="v">' + r.customer + '</span>'
+      + '<span class="k">出库类型</span><span class="v">' + r.outType + '</span>'
+      + '<span class="k">仓库</span><span class="v">' + r.wh + '</span>'
+      + '<span class="k">箱数 / 重量</span><span class="v">' + r.boxes + ' 箱 / ' + r.weight + 'KG</span></div></div>';
+    s += '<div class="pda-sec">拣货明细（点击行模拟扫码核对）</div>';
+    st.outBoxes.forEach(function (b, i) {
+      s += '<div class="pda-row" data-act="check" data-i="' + i + '"><div class="pr-main"><div class="pr-no">' + b.box + '</div><div class="pr-sub">' + b.batch + ' · 缸号 ' + b.vat + ' · ' + b.w + 'KG</div></div>'
+        + (st.outChecked[i] ? pdaTag("已核对", "ok") : pdaTag("待核对", "info")) + '</div>';
+    });
+    s += '</div>';
+    s += '<div class="pda-foot"><span class="pda-stat">已核对 <b>' + done + '</b> / ' + st.outBoxes.length + ' 箱</span><button class="pda-btn big" data-act="confirmPick">拣货完成</button></div>';
+    return s;
+  }
+
+  function vMove() {
+    var st = pdaState;
+    var s = pdaHead("移库", true);
+    s += '<div class="pda-body">';
+    s += '<div class="pda-step"><div class="ps-t">① 扫描源托盘</div><div class="ps-row"><div class="ps-v">' + (st.mvPallet || "未扫描") + '</div><button class="pda-btn" data-act="scanMvP">扫描</button></div>'
+      + (st.mvInfo ? '<div class="ps-info">现仓位 ' + st.mvInfo.loc + ' · ' + st.mvInfo.boxes + ' 箱 · ' + st.mvInfo.batch + '</div>' : '') + '</div>';
+    s += '<div class="pda-step"><div class="ps-t">② 扫描目标仓位</div><div class="ps-row"><div class="ps-v">' + (st.mvLoc || "未扫描") + '</div><button class="pda-btn" data-act="scanMvL">扫描</button></div></div>';
+    s += '<div class="pda-note">移库类型：托盘挪库（默认）。生效后仓位变更将同步 ERP（ERP 启用仓位管理）。</div>';
+    s += '</div>';
+    s += '<div class="pda-foot"><span class="pda-stat">数量不变 · 仅仓位转移</span><button class="pda-btn big" data-act="confirmMove">确认移库</button></div>';
+    return s;
+  }
+
+  function vTransfer() {
+    var st = pdaState, whs = WMS_DATA.WAREHOUSES;
+    var opt = function (sel) {
+      return whs.map(function (w, i) { return '<option' + (i === sel ? " selected" : "") + '>' + w.name + '</option>'; }).join("");
+    };
+    var s = pdaHead("调拨", true);
+    s += '<div class="pda-body">';
+    s += '<div class="pda-selrow"><span>源仓库</span><select data-sel="from">' + opt(st.trFrom) + '</select></div>';
+    s += '<div class="pda-selrow"><span>目标仓库</span><select data-sel="to">' + opt(st.trTo) + '</select></div>';
+    s += '<div class="pda-step"><div class="ps-t">扫描调拨托盘</div><div class="ps-row"><div class="ps-v">' + (st.trPallet || "未扫描") + '</div><button class="pda-btn" data-act="scanTrP">扫描</button></div>'
+      + (st.trInfo ? '<div class="ps-info">' + st.trInfo.boxes + ' 箱 · ' + st.trInfo.batch + '</div>' : '') + '</div>';
+    s += '<div class="pda-note">调拨面向仓间转移；与移库的职责边界见 PRD 第 9 节 Q3。</div>';
+    s += '</div>';
+    s += '<div class="pda-foot"><span class="pda-stat">仓间转移</span><button class="pda-btn big" data-act="confirmTr">确认调拨</button></div>';
+    return s;
+  }
+
+  function vSync() {
+    var st = pdaState;
+    if (!st.syncList) {
+      var a = WMS_DATA.inbound().slice(0, 3).map(function (r) { return { no: r.no, type: "入库单", sync: r.sync, erp: r.erpNo }; });
+      var b = WMS_DATA.outbound().slice(0, 3).map(function (r) { return { no: r.no, type: "出库单", sync: r.sync, erp: r.erpOrder }; });
+      st.syncList = a.concat(b);
+    }
+    var s = pdaHead("同步状态查询", true);
+    s += '<div class="pda-body"><div class="pda-sec">单据同步 ERP 状态（与 PC 端同一体系）</div>';
+    st.syncList.forEach(function (r, i) {
+      var ok = r.sync === "成功";
+      s += '<div class="pda-row"><div class="pr-main"><div class="pr-no">' + r.no + ' <span class="pr-type">' + r.type + '</span></div><div class="pr-sub">ERP：' + (ok ? r.erp : "—") + '</div></div>'
+        + (ok ? pdaTag("成功", "ok") : '<button class="pda-mini" data-act="retrySync" data-i="' + i + '">重试</button>') + (ok ? "" : pdaTag("未同步", "err")) + '</div>';
+    });
+    s += '</div>';
+    s += '<div class="pda-foot"><span class="pda-stat">未同步单据可幂等重试（闭环⑤）</span></div>';
+    return s;
+  }
+
+  function vScan() {
+    var st = pdaState, r = st.scanResult;
+    var s = pdaHead("扫托查询", true);
+    s += '<div class="pda-body">';
+    s += '<div class="pda-scan"><input type="text" readonly value="' + (r ? r.pallet : "") + '" placeholder="扫描托盘条码…"><button class="pda-btn" data-act="scanQuery">查询</button></div>';
+    if (!r) {
+      s += '<div class="pda-empty">扫描托盘号<br>查询托盘 / 箱码 / 批次 / 仓位信息</div>';
+    } else {
+      s += '<div class="pda-card"><div class="pc-title">托盘 ' + r.pallet + '</div><div class="pc-grid">'
+        + '<span class="k">仓库</span><span class="v">' + r.wh + '</span>'
+        + '<span class="k">仓位</span><span class="v">' + r.loc + '</span>'
+        + '<span class="k">在库箱数</span><span class="v">' + r.boxes.length + ' 箱</span>'
+        + '<span class="k">托盘状态</span><span class="v">在库</span></div></div>';
+      s += '<div class="pda-sec">箱码明细</div>';
+      s += pdaBoxRows(r.boxes, "");
+    }
+    s += '</div>';
+    return s;
+  }
+
+  var PDA_VIEWS = { code: vCode, pallet: vPallet, inbound: vIn, inD: vInD, outbound: vOut, outD: vOutD, move: vMove, transfer: vTransfer, sync: vSync, scanP: vScan };
+
+  function renderPda() {
+    var f = document.getElementById("pdaFrame");
+    if (!f) return;
+    f.innerHTML = (PDA_VIEWS[pdaState.view] || vHome)();
+  }
+
+  function pdaAct(act, el) {
+    var st = pdaState, i;
+    if (act === "home") { st.view = "home"; renderPda(); return; }
+    if (act === "back") { st.view = st.view === "inD" ? "inbound" : st.view === "outD" ? "outbound" : "home"; renderPda(); return; }
+    switch (act) {
+      case "codeType": st.codeType = el.getAttribute("data-t"); renderPda(); break;
+      case "scanCode": st.codeList.unshift(pdaBoxes(1)[0]); renderPda(); break;
+      case "delCode": i = parseInt(el.getAttribute("data-i"), 10); st.codeList.splice(i, 1); renderPda(); break;
+      case "submitCode":
+        if (!st.codeList.length) { msgbox("info", "请先扫描箱码再提交码单。"); return; }
+        msgbox("info", "码单提交成功（" + st.codeType + "，" + st.codeList.length + " 箱）。");
+        st.codeList = []; renderPda(); break;
+      case "scanPallet":
+        if (!st.palletNo) st.palletNo = WMS_DATA.palletNo();
+        else st.palletList.unshift(pdaBoxes(1)[0]);
+        renderPda(); break;
+      case "delBox": i = parseInt(el.getAttribute("data-i"), 10); st.palletList.splice(i, 1); renderPda(); break;
+      case "donePallet":
+        if (!st.palletList.length) { msgbox("info", "本托盘尚无箱码，不能完成组托。"); return; }
+        msgbox("info", "组托完成：" + st.palletNo + "（" + st.palletList.length + " 箱）。上架确认后生成入库单。");
+        pdaReset("pallet"); renderPda(); break;
+      case "confirmUp":
+        msgbox("info", "入库单 " + st.inDoc.no + " 上架确认完成，库存批次台账已更新。");
+        st.inList = null; st.view = "inbound"; renderPda(); break;
+      case "check": i = parseInt(el.getAttribute("data-i"), 10); st.outChecked[i] = !st.outChecked[i]; renderPda(); break;
+      case "confirmPick":
+        msgbox("info", "出库单 " + st.outDoc.no + " 拣货完成，执行「同步 ERP」后回写出库单号。");
+        st.outList = null; st.view = "outbound"; renderPda(); break;
+      case "scanMvP":
+        st.mvPallet = WMS_DATA.palletNo();
+        st.mvInfo = { loc: WMS_DATA.locNo(), boxes: WMS_DATA.ri(2, 6), batch: WMS_DATA.batchNo() };
+        renderPda(); break;
+      case "scanMvL": st.mvLoc = WMS_DATA.locNo(); renderPda(); break;
+      case "confirmMove":
+        if (!st.mvPallet || !st.mvLoc) { msgbox("info", "请先完成源托盘与目标仓位两步扫描。"); return; }
+        msgbox("info", "移库生效：" + st.mvPallet + "  " + st.mvInfo.loc + " → " + st.mvLoc + "。仓位变更将同步 ERP。");
+        pdaReset("move"); renderPda(); break;
+      case "scanTrP":
+        st.trPallet = WMS_DATA.palletNo();
+        st.trInfo = { boxes: WMS_DATA.ri(2, 6), batch: WMS_DATA.batchNo() };
+        renderPda(); break;
+      case "confirmTr":
+        if (st.trFrom === st.trTo) { msgbox("info", "源仓库与目标仓库相同，请重新选择。"); return; }
+        if (!st.trPallet) { msgbox("info", "请先扫描调拨托盘。"); return; }
+        msgbox("info", "调拨确认：" + WMS_DATA.WAREHOUSES[st.trFrom].name + " → " + WMS_DATA.WAREHOUSES[st.trTo].name + "，托盘 " + st.trPallet + "。");
+        pdaReset("transfer"); renderPda(); break;
+      case "retrySync": i = parseInt(el.getAttribute("data-i"), 10); st.syncList[i].sync = "成功"; renderPda(); break;
+      case "scanQuery":
+        st.scanResult = {
+          pallet: WMS_DATA.palletNo(),
+          wh: WMS_DATA.pick(WMS_DATA.WAREHOUSES).name,
+          loc: WMS_DATA.locNo(),
+          boxes: pdaBoxes(WMS_DATA.ri(3, 6))
+        };
+        renderPda(); break;
+    }
+  }
+
+  function pdaRow(kind, i) {
+    var st = pdaState;
+    if (kind === "in") { st.inDoc = st.inList[i]; st.inBoxes = null; st.view = "inD"; }
+    if (kind === "out") { st.outDoc = st.outList[i]; st.outBoxes = null; st.outChecked = {}; st.view = "outD"; }
+    renderPda();
+  }
+
+  function buildPda() {
+    pdaReset("home");
+    var p = document.createElement("div");
+    p.className = "page pda-page";
+    p.id = "page-pdaWork";
+    var frame = document.createElement("div");
+    frame.className = "pda-frame";
+    frame.id = "pdaFrame";
+    p.appendChild(frame);
     p.addEventListener("click", function (e) {
-      if (e.target.closest("[data-act='home']")) { openTab("home"); return; }
+      var a = e.target.closest("[data-act]");
+      if (a) { pdaAct(a.getAttribute("data-act"), a); return; }
       var it = e.target.closest(".pda-item");
-      if (it) msgbox("info", "原型演示：「" + it.getAttribute("data-name") + "」作业界面未实现。");
+      if (it) { pdaReset(it.getAttribute("data-f")); renderPda(); return; }
+      var row = e.target.closest("[data-row]");
+      if (row) pdaRow(row.getAttribute("data-row"), parseInt(row.getAttribute("data-i"), 10));
+    });
+    p.addEventListener("change", function (e) {
+      var sel = e.target;
+      if (sel.tagName === "SELECT" && sel.getAttribute("data-sel")) {
+        pdaState[sel.getAttribute("data-sel") === "from" ? "trFrom" : "trTo"] = sel.selectedIndex;
+      }
     });
     $("pageContainer").appendChild(p);
+    renderPda();
   }
 
   /* ============ 状态栏时钟 / 全局 ============ */
