@@ -242,7 +242,7 @@
     page.className = "page";
     page.id = "page-" + key;
     /* 通用按钮补齐: 列设置(查询选项按钮移至查询框左侧) */
-    var tbBtns = mod.toolbar.filter(function (b) { return b !== "查询选项"; });
+    var tbBtns = mod.toolbar.filter(function (b) { return b !== "查询选项" && b !== "查询"; });
     if (tbBtns.indexOf("列设置") < 0 && tbBtns.indexOf("显示设置") < 0) tbBtns.push("列设置");
     var s = '<div class="toolbar">';
     tbBtns.forEach(function (b) {
@@ -337,8 +337,7 @@
     var rows = filteredRows(key);
     var pages = Math.max(1, Math.ceil(rows.length / st.pageSize));
     if (st.page > pages) st.page = pages;
-    var s = "<label>" + esc(mod.dateField || "日期") + ' 从 <input type="date" id="from-' + key + '" value="' + st.from + '"> 至 <input type="date" id="to-' + key + '" value="' + st.to + '"> <button class="btn" data-btn="查询" style="height:21px">查询</button></label>';
-    s += '<span class="recinfo">记录数: ' + rows.length + "</span>";
+    var s = '<span class="recinfo">记录数: ' + rows.length + "</span>";
     s += '<div class="pager"><span>第 ' + st.page + " 页 / 共 " + pages + " 页</span>";
     s += '<label>每页 <select id="ps-' + key + '">';
     [20, 50, 100].forEach(function (n) {

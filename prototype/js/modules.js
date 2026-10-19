@@ -39,7 +39,7 @@ var MODULES = {
             { t: "发货类型", k: "deliveType", w: 60, cls: "ctr" }, { t: "批号", k: "batch", w: 130 },
             { t: "缸号", k: "vat", w: 110 }, { t: "物料编号", k: "material", w: 105 }, { t: "物料名称", k: "materialName", w: 140 },
             { t: "物料规格", k: "spec", w: 70 }, { t: "原料明细", k: "comp", w: 130 },
-            { t: "条染打版色号", k: "colorTop", w: 85, cls: "ctr" }, { t: "统染打版色号", k: "colorPiece", w: 85, cls: "ctr" },
+            { t: "条染打版色号", k: "colorTop", w: 85, cls: "ctr" }, { t: "绞染打版色号", k: "colorPiece", w: 85, cls: "ctr" },
             { t: "公司色号", k: "colorComp", w: 70, cls: "ctr" }, { t: "客户色号", k: "colorCust", w: 70, cls: "ctr" },
             { t: "颜色", k: "color", w: 55 }, { t: "标重", k: "qty", w: 80, cls: "num" }, { t: "单位", k: "unit", w: 40, cls: "ctr" },
             { t: "仓库", k: "wh", w: 75 }, { t: "仓位", k: "loc", w: 80 }
