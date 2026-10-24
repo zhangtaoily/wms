@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.system.mapper.SysMenuCodingAttachmentsMapper">
+
+    <resultMap type="com.wms.system.domain.SysMenuCodingAttachments" id="SysMenuCodingAttachmentsResult">
+        <result property="id" column="id"/>
+        <result property="function" column="function"/>
+        <result property="codingPrefix" column="coding_prefix"/>
+        <result property="codingLength" column="coding_length"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="codingType" column="coding_type"/>
+        <result property="sort" column="sort"/>
+    </resultMap>
+
+
+</mapper>

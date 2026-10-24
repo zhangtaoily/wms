@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>开发计划 · 云梭智能仓储管理系统（WMS）V1.0</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Microsoft YaHei","PingFang SC",SimSun,sans-serif; font-size:14px; color:#20364a; background:#eef2f7; line-height:1.75; }
+.layout { display:flex; max-width:1280px; margin:0 auto; }
+nav.toc { width:230px; flex:none; position:sticky; top:0; height:100vh; overflow:auto; background:#1f3550; color:#c9d8ea; padding:22px 0; }
+nav.toc h1 { font-size:15px; color:#fff; padding:0 18px 14px; border-bottom:1px solid #33507a; margin-bottom:10px; }
+nav.toc a { display:block; padding:6px 18px 6px 26px; color:#b7c9de; text-decoration:none; font-size:13px; border-left:3px solid transparent; }
+nav.toc a:hover { color:#fff; background:#2a4a75; }
+nav.toc a.lv2 { padding-left:40px; font-size:12px; color:#9db4d0; }
+main { flex:1; min-width:0; background:#fff; margin:14px; border-radius:8px; padding:40px 52px; box-shadow:0 2px 10px rgba(30,60,100,.08); }
+h2 { font-size:21px; color:#17365d; border-left:5px solid #2f74b8; padding-left:12px; margin:38px 0 16px; }
+h3 { font-size:17px; color:#1f4e79; margin:26px 0 10px; }
+h4 { font-size:15px; color:#2f74b8; margin:18px 0 8px; }
+p { margin:8px 0; }
+ul,ol { margin:8px 0 8px 24px; }
+li { margin:3px 0; }
+table { border-collapse:collapse; width:100%; margin:12px 0; font-size:13px; }
+th { background:linear-gradient(180deg,#f8fbfe,#e3edf7); color:#243f59; border:1px solid #b9c9da; padding:6px 10px; text-align:left; }
+td { border:1px solid #d7e1ec; padding:6px 10px; vertical-align:top; }
+tr:nth-child(even) td { background:#f7fafd; }
+figure { margin:18px 0; padding:14px; border:1px solid #c9d8e8; border-radius:6px; background:#fbfdff; overflow-x:auto; }
+figcaption { text-align:center; color:#5b7286; font-size:13px; margin-top:8px; }
+code,.tag { background:#eaf1f9; border:1px solid #c7d9ec; border-radius:3px; padding:1px 6px; font-size:12px; color:#1a5fa8; font-family:Consolas,monospace; }
+.tbd { color:#b03a2e; font-weight:bold; }
+.assume { color:#b07d2b; }
+.note { background:#f4f8fc; border-left:4px solid #4a90d9; padding:10px 14px; margin:12px 0; border-radius:0 4px 4px 0; font-size:13px; }
+.warn { background:#fdf6ef; border-left:4px solid #e8a33d; padding:10px 14px; margin:12px 0; border-radius:0 4px 4px 0; font-size:13px; }
+.phase { display:inline-block; background:#1f4e79; color:#fff; border-radius:3px; padding:0 8px; font-size:12px; font-weight:bold; margin-right:6px; }
+svg text { font-family:"Microsoft YaHei",SimSun,sans-serif; }
+@media print { nav.toc { display:none; } main { margin:0; border-radius:0; box-shadow:none; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc">
+<h1>智能仓储 WMS<br>开发计划 V1.0</h1>
+<a href="#s1">1 计划总览</a>
+<a href="#s2">2 里程碑总览</a>
+<a href="#s3">3 迭代明细</a>
+<a href="#s3-1" class="lv2">3.1 M1 平台基座与引擎</a>
+<a href="#s3-2" class="lv2">3.2 M2 基础数据与列表体验</a>
+<a href="#s3-3" class="lv2">3.3 M3 入库闭环</a>
+<a href="#s3-4" class="lv2">3.4 M4 出库闭环与任务</a>
+<a href="#s3-5" class="lv2">3.5 M5 库内管理</a>
+<a href="#s3-6" class="lv2">3.6 M6 立库终端与 PDA</a>
+<a href="#s3-7" class="lv2">3.7 M7 同步对账与部署</a>
+<a href="#s3-8" class="lv2">3.8 M8+ 候选（P1）</a>
+<a href="#s4">4 待定问题建议决策</a>
+<a href="#s5">5 M1 任务分解样例</a>
+<a href="#s6">6 风险与依赖</a>
+<a href="#s7">7 验收与质量门禁</a>
+</nav>
+<main>
+
+<h1 style="font-size:26px;color:#17365d;margin-bottom:4px;">云梭智能仓储管理系统（WMS）开发计划</h1>
+<p style="color:#5b7286;">版本 V1.0 ｜ 行业：纱线纺织（浙江云梭纺织股份有限公司）｜ 依据：PRD V3.69 · 架构规划 V1.0 · wms_table_design.sql（43 表）· 交互原型（d:\prj\wms\prototype）｜ 状态：评审稿</p>
+
+<!-- ================================================================ -->
+<h2 id="s1">1 计划总览</h2>
+<p><b>目标：</b>以 PRD V3.69 的 P0 范围（5 组 27 项功能模块，含 2 个终端界面）为交付边界，按架构规划 V1.0 的技术路线（xinao-crm 同构增强、动态列表/表单引擎、两阶段部署），以 <b>M1~M7 七个迭代</b>完成"ERP/MES 引入 → 仓储执行 → 台账更新 → 回写 ERP → 同步对账"的完整业务闭环；P1 候选项列入 M8+ 候选迭代，不在本计划承诺范围内。</p>
+<h3>1.1 计划依据</h3>
+<table>
+<tr><th>输入</th><th>版本/位置</th><th>作用</th></tr>
+<tr><td>产品需求文档（PRD）</td><td>V3.69（WMS智能仓储系统PRD.html）</td><td>需求基准：FR-01~FR-14、P0 五组 27 项、单据状态机、闭环规则、共享规则、Q1~Q4</td></tr>
+<tr><td>架构规划</td><td>V1.0（WMS系统架构规划.html）</td><td>技术路线：五层架构、动态列表/表单引擎、6 个增强插件、PDA 引擎、条件树增强、43 表映射、两阶段部署</td></tr>
+<tr><td>表设计</td><td>wms_table_design.sql（43 张表）</td><td>数据模型：base 8 + doc 17 + inv 4 + asrs 4 + sync 1 + sys 9</td></tr>
+<tr><td>交互原型</td><td>d:\prj\wms\prototype（26 个列表模块）</td><td>页面交互与列配置行为基准（PRD 以原型已实现行为为依据）</td></tr>
+</table>
+<h3>1.2 范围与硬约束</h3>
+<ul>
+<li><b>范围内（P0）：</b>仓储作业 5 项（出库通知、收货清单、组托单、码单收录、PDA 工作台）、立库作业 4 项（仓储任务、作业任务、作业日志、立库扫码终端）、库存管理 4 项（出库单、入库单、盘存单、移库单）、基础数据 6 项（业务批次、库存批次、箱码信息、托盘信息、仓位信息、仓库信息）、系统管理 8 项（业务字典、系统设置、模块组别、功能模块、用户信息、角色设置、打印模板、提醒设置）。</li>
+<li><b>明确排除：</b>K3 入库单/出库单等外部单据功能（业务已停用）、ERP 单据查询配置。</li>
+<li><b>P1 候选（M8+，不承诺）：</b>同步失败自动重试与告警推送、盘盈盘亏审批流、库存预警与效期/回潮率批次策略。</li>
+<li><b>硬约束：</b>只可对参考架构（xinao-crm）<b>增强、不可减弱</b>——沿用其动态列表引擎、表单引擎、权限模型与部署基线，所有 WMS 特性以插件/扩展/新增字段方式实现（与架构规划第 6 章增强合规声明一致）。</li>
+</ul>
+<div class="note"><b>排期说明：</b>本计划以迭代序号（M1~M7）表达先后与依赖关系，不预设日历日期与人天；各迭代的"计划开始/结束、负责人"栏留空，由项目排期会议按资源情况填充后并入项目管理。</div>
+
+<!-- ================================================================ -->
+<h2 id="s2">2 里程碑总览</h2>
+<p>七个迭代按依赖关系串并行推进：M1 平台基座 → M2 基础数据与列表体验 → M3 入库闭环 →（M4 出库闭环 ∥ M5 库内管理）→ M6 立库终端与 PDA → M7 同步对账与部署收口。M3 完成后库存台账可用，M4 与 M5 具备并行条件。</p>
+<figure>
+<svg viewBox="0 0 960 330" width="100%">
+<defs><marker id="arP" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#4a6c96"/></marker></defs>
+<g font-size="13">
+<!-- 轴 -->
+<line x1="50" y1="290" x2="930" y2="290" stroke="#c4d2e0" stroke-width="1.5"/>
+<text x="52" y="310" fill="#8a97a5" font-size="12">迭代顺序 →（不含日历排期）</text>
+<!-- M1 -->
+<rect x="60" y="24" width="190" height="34" rx="5" fill="#dce9f6" stroke="#7aa3d6" stroke-width="1.6"/>
+<text x="155" y="46" text-anchor="middle" fill="#17365d" font-weight="bold">M1 平台基座与引擎</text>
+<!-- M2 -->
+<rect x="270" y="60" width="190" height="34" rx="5" fill="#e9f3e9" stroke="#57a773" stroke-width="1.6"/>
+<text x="365" y="82" text-anchor="middle" fill="#1e6b3c" font-weight="bold">M2 基础数据与列表体验</text>
+<line x1="250" y1="41" x2="266" y2="68" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#arP)"/>
+<!-- M3 -->
+<rect x="480" y="96" width="170" height="34" rx="5" fill="#dbeafe" stroke="#4a90d9" stroke-width="1.6"/>
+<text x="565" y="118" text-anchor="middle" fill="#17365d" font-weight="bold">M3 入库闭环</text>
+<line x1="460" y1="77" x2="476" y2="104" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#arP)"/>
+<!-- M4 -->
+<rect x="680" y="132" width="200" height="34" rx="5" fill="#dbeafe" stroke="#4a90d9" stroke-width="1.6"/>
+<text x="780" y="154" text-anchor="middle" fill="#17365d" font-weight="bold">M4 出库闭环与任务</text>
+<line x1="650" y1="113" x2="676" y2="140" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#arP)"/>
+<!-- M5 -->
+<rect x="680" y="176" width="200" height="34" rx="5" fill="#e6f4f6" stroke="#4aa3b8" stroke-width="1.6"/>
+<text x="780" y="198" text-anchor="middle" fill="#155e6e" font-weight="bold">M5 库内管理（移库/盘存）</text>
+<path d="M565 130 L565 193 L676 193" fill="none" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#arP)"/>
+<text x="610" y="168" text-anchor="middle" fill="#8a97a5" font-size="11">台账就绪后与 M4 并行</text>
+<!-- M6 -->
+<rect x="60" y="212" width="250" height="34" rx="5" fill="#efe6f6" stroke="#9a7ec4" stroke-width="1.6"/>
+<text x="185" y="234" text-anchor="middle" fill="#5b3d7a" font-weight="bold">M6 立库终端与 PDA</text>
+<path d="M680 149 L500 149 L500 229 L314 229" fill="none" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#arP)"/>
+<text x="470" y="220" text-anchor="middle" fill="#8a97a5" font-size="11">依赖 M4 任务模型（回库/下架）</text>
+<!-- M7 -->
+<rect x="340" y="248" width="270" height="34" rx="5" fill="#fdf0dd" stroke="#d8a657" stroke-width="1.6"/>
+<text x="475" y="270" text-anchor="middle" fill="#7a5a1d" font-weight="bold">M7 同步对账与部署收口</text>
+<path d="M680 193 L620 193 L620 265 L614 265" fill="none" stroke="#4a6c96" stroke-width="1.6" marker-end="url(#arP)"/>
+<text x="330" y="222" text-anchor="end" fill="#8a97a5" font-size="11"></text>
+<!-- M8 -->
+<rect x="640" y="248" width="240" height="30" rx="5" fill="#f4f6f9" stroke="#9aa8b8" stroke-width="1.4" stroke-dasharray="5 3"/>
+<text x="760" y="268" text-anchor="middle" fill="#5b7286" font-size="12">M8+ 候选：P1 特性 / 微服务化拆分</text>
+<line x1="610" y1="265" x2="636" y2="265" stroke="#9aa8b8" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arP)"/>
+</g>
+</svg>
+<figcaption>图 1 · 迭代里程碑依赖总览（M4 与 M5 可并行；M6 依赖 M4 任务模型；M7 为工程收口）</figcaption>
+</figure>
+<h3>2.1 迭代一览</h3>
+<table>
+<tr><th>迭代</th><th>主题</th><th>功能模块（27 项分布）</th><th>FR</th><th>新建表</th><th>计划开始/结束</th><th>负责人</th></tr>
+<tr><td><span class="phase">M1</span></td><td>平台基座与引擎</td><td>系统管理核心 6：用户信息、角色设置、模块组别、功能模块、业务字典、系统设置</td><td>两级权限树（3.1）</td><td>sys 7 张 + sys_field_config</td><td>（待排期）</td><td>（待定）</td></tr>
+<tr><td><span class="phase">M2</span></td><td>基础数据与列表体验</td><td>基础数据 6：仓库信息、仓位信息、业务批次、库存批次、箱码信息、托盘信息；系统管理 2：打印模板、提醒设置</td><td>FR-12、FR-13、FR-14</td><td>base 8 张 + sys_print_template、sys_remind_setting</td><td>（待排期）</td><td>（待定）</td></tr>
+<tr><td><span class="phase">M3</span></td><td>入库闭环</td><td>收货清单、码单收录、组托单、入库单</td><td>FR-01~FR-04</td><td>doc_receiving、doc_code_collect×2、doc_pallet_order×3、doc_inbound×2、inv×4</td><td>（待排期）</td><td>（待定）</td></tr>
+<tr><td><span class="phase">M4</span></td><td>出库闭环与任务</td><td>出库通知、出库单、仓储任务、作业任务、作业日志</td><td>FR-05、FR-06、FR-10、FR-11</td><td>doc_out_notice×2、doc_outbound×2、asrs_wh_task、asrs_op_task、asrs_op_log</td><td>（待排期）</td><td>（待定）</td></tr>
+<tr><td><span class="phase">M5</span></td><td>库内管理</td><td>移库单、盘存单</td><td>FR-08、FR-09</td><td>doc_stock_move×2、doc_stock_count×3</td><td>（待排期）</td><td>（待定）</td></tr>
+<tr><td><span class="phase">M6</span></td><td>立库终端与 PDA</td><td>立库扫码终端、PDA 工作台（2 个终端界面）</td><td>FR-07</td><td>asrs_scan_log</td><td>（待排期）</td><td>（待定）</td></tr>
+<tr><td><span class="phase">M7</span></td><td>同步对账与部署收口</td><td>（无新模块：同步对账监控页 + 部署）</td><td>闭环规则 7.4、Q1</td><td>sync_record</td><td>（待排期）</td><td>（待定）</td></tr>
+<tr><td><span class="phase" style="background:#9aa8b8;">M8+</span></td><td>候选（P1）</td><td>自动重试告警、盘盈亏审批流、库存预警/效期、微服务化拆分</td><td>—</td><td>—</td><td>不承诺</td><td>—</td></tr>
+</table>
+<p>覆盖核对：27 项模块 = 6+8+4+5+2+2；FR-01~FR-14 全部落入 M2~M6；43 张表 + sys_field_config 共 44 个数据对象全部落入 M1~M7，无遗漏。</p>
+<h3>2.2 迭代与业务闭环五环节的映射</h3>
+<figure>
+<svg viewBox="0 0 960 250" width="100%">
+<g font-size="12.5">
+<rect x="20" y="20" width="176" height="52" rx="5" fill="#fff" stroke="#4a90d9" stroke-width="1.6"/>
+<text x="108" y="42" text-anchor="middle" font-weight="bold" fill="#1f4e79">① 单据引入</text>
+<text x="108" y="61" text-anchor="middle" fill="#5b7286" font-size="11">ERP 三源/MES 移交/在途</text>
+<rect x="208" y="20" width="176" height="52" rx="5" fill="#fff" stroke="#4a90d9" stroke-width="1.6"/>
+<text x="296" y="42" text-anchor="middle" font-weight="bold" fill="#1f4e79">② 仓储执行</text>
+<text x="296" y="61" text-anchor="middle" fill="#5b7286" font-size="11">码单→组托→出入库·移库盘存</text>
+<rect x="396" y="20" width="176" height="52" rx="5" fill="#fff" stroke="#4a90d9" stroke-width="1.6"/>
+<text x="484" y="42" text-anchor="middle" font-weight="bold" fill="#1f4e79">③ 台账更新</text>
+<text x="484" y="61" text-anchor="middle" fill="#5b7286" font-size="11">批次→托盘→箱码 三层</text>
+<rect x="584" y="20" width="176" height="52" rx="5" fill="#fff" stroke="#4a90d9" stroke-width="1.6"/>
+<text x="672" y="42" text-anchor="middle" font-weight="bold" fill="#1f4e79">④ 生效回写</text>
+<text x="672" y="61" text-anchor="middle" fill="#5b7286" font-size="11">状态机 + 同步 ERP</text>
+<rect x="772" y="20" width="168" height="52" rx="5" fill="#fff" stroke="#4a90d9" stroke-width="1.6"/>
+<text x="856" y="42" text-anchor="middle" font-weight="bold" fill="#1f4e79">⑤ 同步对账</text>
+<text x="856" y="61" text-anchor="middle" fill="#5b7286" font-size="11">幂等重试 · 差异定位</text>
+<!-- 迭代标签行 -->
+<g font-size="12">
+<rect x="20" y="100" width="176" height="120" rx="4" fill="#eef4fb" stroke="#c4d5e8"/>
+<text x="108" y="126" text-anchor="middle" fill="#17365d" font-weight="bold">M3</text>
+<text x="108" y="148" text-anchor="middle" fill="#41586c">收货清单/码单/组托</text>
+<text x="108" y="168" text-anchor="middle" fill="#41586c">入库单三源承接</text>
+<text x="108" y="188" text-anchor="middle" fill="#41586c">批次台账初建</text>
+<text x="108" y="208" text-anchor="middle" fill="#41586c">入库单生效+同步</text>
+<rect x="208" y="100" width="176" height="120" rx="4" fill="#eef4fb" stroke="#c4d5e8"/>
+<text x="296" y="126" text-anchor="middle" fill="#17365d" font-weight="bold">M3 / M4 / M5 / M6</text>
+<text x="296" y="148" text-anchor="middle" fill="#41586c">M3 组托上架</text>
+<text x="296" y="168" text-anchor="middle" fill="#41586c">M4 锁批次·下架扣账</text>
+<text x="296" y="188" text-anchor="middle" fill="#41586c">M5 移库/盘存调整</text>
+<text x="296" y="208" text-anchor="middle" fill="#41586c">M6 终端/PDA 采集</text>
+<rect x="396" y="100" width="176" height="120" rx="4" fill="#eef4fb" stroke="#c4d5e8"/>
+<text x="484" y="126" text-anchor="middle" fill="#17365d" font-weight="bold">M3 初建 · M4 扣减</text>
+<text x="484" y="148" text-anchor="middle" fill="#41586c">M3 增批次/托盘/箱码</text>
+<text x="484" y="168" text-anchor="middle" fill="#41586c">M4 出库扣账</text>
+<text x="484" y="188" text-anchor="middle" fill="#41586c">M5 仓位/盈亏校平</text>
+<text x="484" y="208" text-anchor="middle" fill="#41586c">先锁批次后扣账</text>
+<rect x="584" y="100" width="176" height="120" rx="4" fill="#eef4fb" stroke="#c4d5e8"/>
+<text x="672" y="126" text-anchor="middle" fill="#17365d" font-weight="bold">M3 / M4 / M5</text>
+<text x="672" y="148" text-anchor="middle" fill="#41586c">入库/出库/移库生效</text>
+<text x="672" y="168" text-anchor="middle" fill="#41586c">回写 ERP 单号</text>
+<text x="672" y="188" text-anchor="middle" fill="#41586c">移库回写仓位</text>
+<text x="672" y="208" text-anchor="middle" fill="#41586c">同步轴随单据启动</text>
+<rect x="772" y="100" width="168" height="120" rx="4" fill="#fdf6ef" stroke="#d8a657" stroke-width="1.6"/>
+<text x="856" y="126" text-anchor="middle" fill="#7a5a1d" font-weight="bold">M7 收口</text>
+<text x="856" y="148" text-anchor="middle" fill="#41586c">sync_record 幂等</text>
+<text x="856" y="168" text-anchor="middle" fill="#41586c">定时补偿重试</text>
+<text x="856" y="188" text-anchor="middle" fill="#41586c">对账报表+人工重推</text>
+<text x="856" y="208" text-anchor="middle" fill="#41586c">部署第一阶段上线</text>
+</g>
+<line x1="108" y1="72" x2="108" y2="96" stroke="#4a6c96" stroke-width="1.4"/>
+<line x1="296" y1="72" x2="296" y2="96" stroke="#4a6c96" stroke-width="1.4"/>
+<line x1="484" y1="72" x2="484" y2="96" stroke="#4a6c96" stroke-width="1.4"/>
+<line x1="672" y1="72" x2="672" y2="96" stroke="#4a6c96" stroke-width="1.4"/>
+<line x1="856" y1="72" x2="856" y2="96" stroke="#4a6c96" stroke-width="1.4"/>
+<text x="480" y="242" text-anchor="middle" fill="#8a97a5" font-size="12">闭环判定：任一引入单据最终呈现「出/入库单 生效 + 同步成功」两个终态（M7 达成全链路演示）</text>
+</g>
+</svg>
+<figcaption>图 2 · 业务闭环五环节（PRD 第 4 章）与迭代的覆盖映射</figcaption>
+</figure>
+
+<!-- ================================================================ -->
+<h2 id="s3">3 迭代明细</h2>
+<p>每个迭代按固定四要素描述：<b>范围</b>（模块 / FR / 表）、<b>关键交付物</b>、<b>依赖</b>、<b>验收标准</b>。验收标准同时包含该迭代业务验收点与 PRD 第 8 章共享规则的回归（详见第 7 章）。</p>
+
+<h3 id="s3-1">3.1 M1 平台基座与引擎</h3>
+<table>
+<tr><th style="width:110px;">要素</th><th>内容</th></tr>
+<tr><td><b>范围</b></td><td><b>工程：</b>wms-admin 聚合启动模块 + 服务层六子模块骨架（wms-service-common/business/warehouse/asrs/sync/system）+ wms-core/framework/generator 沿用接入；MySQL8 + Redis + 定时任务基线。<br>
+<b>引擎：</b>动态列表引擎（sys_field_config 元数据 → ISysFieldConfigService SPI → TableNode 声明 → DataViewMetaData → PluginRegistry 插件链）、表单引擎（AbstractDynamicsFormService、<code>TableNode.main().sub()</code> 主子表范式）、结构化查询条件引擎【增强】（JSON DSL 条件树，op 枚举 eq/ne/gt/ge/lt/le/like/in/between/isNull；三层防线：列名白名单 + 操作符枚举 + <code>?</code> 参数化；双编译目标 applyTo(QueryWrapper) / compile()；sqlQuery 一律留空）、6 个 WMS 插件注册（YarnFormat、SyncStatus、TraceLink、DocStatus、SumRow、StockDrill）。<br>
+<b>模块（系统管理核心 6）：</b>用户信息、角色设置（模块组→功能模块两级权限树）、模块组别、功能模块、业务字典、系统设置。<br>
+<b>表（8）：</b>sys_user、sys_role、sys_user_role、sys_role_module、sys_module_group、sys_func_module、sys_setting、sys_field_config。</td></tr>
+<tr><td><b>关键交付物</b></td><td>可登录运行的单体工程（wms-admin）；动态列表+表单引擎可用的空模块模板（含导入导出按钮位）；两级权限树与菜单过滤；6 个系统管理模块上线；条件树 DSL 与白名单校验单元测试；插件链回归用例（对照 xinao-crm 基线）。</td></tr>
+<tr><td><b>依赖</b></td><td>xinao-crm 参考工程可用；数据库/Redis 环境就绪。</td></tr>
+<tr><td><b>验收标准</b></td><td>① 登录后菜单按两级权限树过滤，未授权模块不渲染入口；② 6 个模块列表分页/排序/快捷查询可用，列设置可配置持久化（FR-13 引擎级能力）；③ 任意模块配置 sys_field_config 后无需编码即可出列表与编辑弹窗；④ 条件树恶意输入（非法列名/操作符/SQL 片段）全部被拦截；⑤ 6 插件在样例列表正确渲染且不改变基线行为。</td></tr>
+</table>
+
+<h3 id="s3-2">3.2 M2 基础数据与列表体验</h3>
+<table>
+<tr><th style="width:110px;">要素</th><th>内容</th></tr>
+<tr><td><b>范围</b></td><td><b>模块（基础数据 6 + 系统管理 2）：</b>仓库信息（类型：立库(自营)/普通仓，ERP 对应仓）、仓位信息（仓位号四段式"区-列-层-位"，如 1-1-1-1；立库仓位与设备库位映射）、业务批次（批号、缸号、物料、纱支、原料成分）、库存批次（批号×仓库×仓位在库数量：标重/箱数，本迭代建查询模块，数据由 M3+ 写入）、箱码信息、托盘信息、打印模板、提醒设置。<br>
+<b>列表通用能力：</b>FR-12 查询选项（(Select All) 联动、按模块持久）、FR-13 列设置（靠齐/列宽 0=隐藏/查询/固定/折行/排序/合计、行级上移下移、删除=隐藏、新增需数据源配置；仓库/仓位模块命名为"显示设置"）、FR-14 分页与筛选（底部按模块日期字段区间从/至、每页 20/50/100、记录数实时）。<br>
+<b>补充决策落地：</b>Excel 导入导出（沿用参考架构机制：列表引擎统一"导出"按钮 + 模板下载 + 导入校验回执）。<br>
+<b>表（10）：</b>base_warehouse、base_location、base_material、base_customer、base_supplier、base_biz_batch、base_dict、base_dict_item、sys_print_template、sys_remind_setting（归属 wms-service-base / wms-service-system）。</td></tr>
+<tr><td><b>关键交付物</b></td><td>8 个模块上线（6 基础数据 + 打印模板 + 提醒设置）；全部 26 个列表模块共享的查询选项/列设置/分页筛选能力（引擎级，一次实现全模块生效）；导入导出组件与首个模板（物料）。</td></tr>
+<tr><td><b>依赖</b></td><td>M1（引擎与权限）。</td></tr>
+<tr><td><b>验收标准</b></td><td>① 仓位号按四段式校验与展示；② 删除仓库/仓位时被单据/仓位引用校验生效（删除约束）；③ 查询选项/列设置按模块独立保存、重开选项卡重置为默认（PRD 8 列配置作用域）；④ 列宽置 0 隐藏后可通过恢复列宽找回；⑤ 排序取首个非"未设置"列；⑥ 数值列合计行正确；⑦ 导入导出往返数据一致，错误行给出回执。</td></tr>
+</table>
+
+<h3 id="s3-3">3.3 M3 入库闭环</h3>
+<table>
+<tr><th style="width:110px;">要素</th><th>内容</th></tr>
+<tr><td><b>范围</b></td><td><b>模块（4）：</b>收货清单（FR-01：ERP 收料/采购/调拨在途数据，在途→已到货→已收货，不直接生成库存；产件收货核对不一致提示人工处理 <span class="assume">[Assumption]</span>）、码单收录（FR-02：按业务类型建单——采购/产件/调拨/销售入库；每箱批号、缸号、标重；明细支持扫描引入；产件箱属性随 MES 移交传递）、组托单（FR-03：件入条码组托/传入条码组托/手动组托；同托箱码归属同一托盘号）、入库单（FR-04：入库类型采购/产件/调拨/样品/退料；作业方式条码/批次；提交生效）。<br>
+<b>台账：</b>三层台账写入链路 箱码→托盘→库存批次（inv_batch/inv_batch_stock/inv_box/inv_pallet）；生效后增库存批次台账。<br>
+<b>状态机与同步轴：</b>新建/引入→制单中→生效（生效不可编辑、不可删除）；独立同步轴 未同步→同步成功（生效后触发"同步 ERP"，生成 ERP 入库单号）。<br>
+<b>Q4 决策落地：</b>红冲机制——负向红冲单冲销，原单不删不改，红冲单走同一状态机与同步轴（见第 4 章）。<br>
+<b>表（12）：</b>doc_receiving、doc_code_collect、doc_code_collect_detail、doc_pallet_order、doc_pallet_order_pallet、doc_pallet_order_detail、doc_inbound、doc_inbound_detail、inv_batch、inv_batch_stock、inv_box、inv_pallet。</td></tr>
+<tr><td><b>关键交付物</b></td><td>入库链路四模块（PC 端）；三层台账写入与查询联动；单据状态机公共组件（供 M4/M5 复用）；同步轴公共组件（sync_record 写入接口先行，重试策略在 M7 收口）；ERP 入库回写接口联调（生成 ERP 入库单号）。</td></tr>
+<tr><td><b>依赖</b></td><td>M2（基础数据/台账查询模块）；ERP 收料与入库回写接口规格冻结（外部依赖，见第 6 章）。</td></tr>
+<tr><td><b>验收标准</b></td><td>① 收货清单在途状态流转正确且不产生库存；② 码单收录累计件量、生成箱码台账；③ 三种组托方式生成托盘台账且同托箱码归属一致；④ 入库单生效后库存批次台账增加、同步 ERP 成功后回填 ERP 入库单号且状态=同步成功；⑤ 制作中可编辑删除、生效后编辑/删除均被拦截（含原型未拦截项的补齐 <span class="assume">[Assumption]</span>）；⑥ 必填校验聚焦首个空缺项并提示"「字段」为必填项"；⑦ 同步失败停留在未同步、可重复触发（幂等，以 ERP 单号判重）。</td></tr>
+</table>
+
+<h3 id="s3-4">3.4 M4 出库闭环与任务</h3>
+<table>
+<tr><th style="width:110px;">要素</th><th>内容</th></tr>
+<tr><td><b>范围</b></td><td><b>模块（5）：</b>出库通知（FR-05：仅接受发货通知单/领料申请单/采购退料单三源导入或手工新建；按 ERP 单号去重，重复导入阻断并提示；明细含发货类型、批号、缸号、物料、色号（条染/绞染/公司/客户）、标重、仓库、仓位；支持引入通知单/扫描引入）、出库单（FR-06：出库类型销售/调拨/领料/直接拣货/复磅检/采购退料/样品；作业方式条码/批次；记录 ERP 订单单号与 ERP 出库单号）、仓储任务（FR-10：入库上架/下架/回库/移库业务级监控）、作业任务与作业日志（FR-11：设备动作粒度明细；日志按单据日期检索、不可修改）。<br>
+<b>扣账规则：</b>先按批次任务锁库存，下架/拣货确认后扣账（7.2）；生效后扣减库存批次台账并回写 ERP 出库单号。<br>
+<b>表（7）：</b>doc_out_notice、doc_out_notice_detail、doc_outbound、doc_outbound_detail、asrs_wh_task、asrs_op_task、asrs_op_log。</td></tr>
+<tr><td><b>关键交付物</b></td><td>出库链路两模块 + 三类 ERP 源单导入适配器；任务生成组件（出库单生效→立库下架任务，供 M6 扫码终端消费）；作业日志只读留痕；ERP 出库回写接口联调。</td></tr>
+<tr><td><b>依赖</b></td><td>M3（库存批次台账、状态机/同步轴组件）；ERP 三类源单接口、出库回写接口。</td></tr>
+<tr><td><b>验收标准</b></td><td>① 三源导入去重阻断生效；② 非三源单据导入被拒绝；③ 出库执行先锁批次（并发不超扣），确认后才扣账；④ 生效扣减台账、回写 ERP 出库单号且同步状态=成功；⑤ 任务随出库单生效自动生成且状态流转正确；⑥ 作业日志不可修改；⑦ 闭环判定达标：出库单呈现"生效+同步成功"终态。</td></tr>
+</table>
+
+<h3 id="s3-5">3.5 M5 库内管理（移库/盘存）</h3>
+<table>
+<tr><th style="width:110px;">要素</th><th>内容</th></tr>
+<tr><td><b>范围</b></td><td><b>模块（2）：</b>移库单（FR-08：四类型——托盘挪库/编码移库/批次移库/空托移库；PC/PDA 均可发起；记录源/目标仓位；明细按托盘/箱/批次层级；总量不变仅仓位归属变化；生效后同步 ERP 仓位变更——ERP 启用仓位（货位）管理）、盘存单（FR-09：按仓库/仓位生成盘点范围，逐箱核对批号、缸号、标重；盘盈亏记录明细；生效后调整库存批次台账）。<br>
+<b>Q2 决策落地：</b>盘盈亏在盘存单生效后生成调整记录，经<b>单级主管确认</b>后回写 ERP（数量变更）；审批流升级为 P1（M8+ 候选）。<br>
+<b>Q3 决策落地：</b>移库单仅承接<b>同一仓库内</b>仓位变更；跨仓/跨货主转移按"出库单+入库单"组合承接，P0 不做独立调拨单据（PDA"调拨"入口语义按此界定，见第 4 章）。<br>
+<b>表（5）：</b>doc_stock_move、doc_stock_move_detail、doc_stock_count、doc_stock_count_detail、doc_stock_count_box。</td></tr>
+<tr><td><b>关键交付物</b></td><td>移库/盘存两模块；台账内部结构调整组件（仓位归属变更、数量校平）；盘盈亏调整记录与主管确认动作；ERP 仓位变更回写接口联调。</td></tr>
+<tr><td><b>依赖</b></td><td>M3（三层台账）；可与 M4 并行；ERP 仓位回写接口。</td></tr>
+<tr><td><b>验收标准</b></td><td>① 四种移库类型均不改变批次总量、仅变更仓位/托盘归属；② 移库生效后 ERP 侧仓位（货位）一致更新；③ 跨仓移库被阻断并提示走出库+入库组合；④ 盘存按仓位生成范围、逐箱核对、盈亏明细正确；⑤ 盘盈亏经主管确认后调整台账并回写 ERP；⑥ 立库移库由仓储任务执行（联动 M4 任务模型）。</td></tr>
+</table>
+
+<h3 id="s3-6">3.6 M6 立库终端与 PDA</h3>
+<table>
+<tr><th style="width:110px;">要素</th><th>内容</th></tr>
+<tr><td><b>范围</b></td><td><b>终端（2）：</b>立库扫码终端（FR-07：条码出库/空托出库/条码出库测试；扫描或输入批次任务号检索；月台回路 11 个——月台1~8号回路、出口自动、5#自动线、自动组托组箱；从"业务批次任务/托盘批次任务"双面板选定任务；"开始作业"下发任务、输送线启动选托下架；<b>未选任务时阻断</b>并提示"请选择有效的批次任务，再进行选托下架作业！"）、PDA 工作台（2×4 网格八功能：码单收录、组托、入库/出库、移库/调拨、同步状态查询、扫托查询；与 PC 同一单据体系）。<br>
+<b>PDA 引擎【增强】：</b>sys_field_config 追加 <code>mobile_show / scan_input / mobile_seq</code> 三列，PDA 列表/表单引擎按声明渲染，扫码输入字段经 scan_input 标记启用。<br>
+<b>表（1）：</b>asrs_scan_log（终端扫码留痕；asrs_wh_task/asrs_op_task/asrs_op_log 已于 M4 建表，本迭代完成终端联动与回写）。</td></tr>
+<tr><td><b>关键交付物</b></td><td>立库扫码终端 H5 应用；PDA 工作台与 8 个移动功能页；PDA 引擎三列扩展与渲染链路；WCS 设备指令下发与作业结果回流（选托下架任务→输送线/堆垛机，结果写作业日志）；立库仓位与设备库位映射联调。</td></tr>
+<tr><td><b>依赖</b></td><td>M4（仓储任务/作业任务模型）；WCS 接口协议冻结（外部依赖）；M2（仓位-设备库位映射）。</td></tr>
+<tr><td><b>验收标准</b></td><td>① 未选任务点"开始作业"被阻断且提示文案一致；② 11 个月台回路可选且任务下发正确；③ 扫码出库后托盘/箱码/批次状态与仓位更新一致，作业日志留痕完整；④ PDA 扫码组托/收录与 PC 端数据同源；⑤ PDA 扫托查询可追溯托盘→箱码→批次→仓位；⑥ PDA 列表按 mobile_show/mobile_seq 渲染、scan_input 字段唤起扫码。</td></tr>
+</table>
+
+<h3 id="s3-7">3.7 M7 同步对账与部署收口</h3>
+<table>
+<tr><th style="width:110px;">要素</th><th>内容</th></tr>
+<tr><td><b>范围</b></td><td><b>同步工程化：</b>wms-sync 子模块完整落地；sync_record 以幂等键 <code>(biz_type, doc_no, direction)</code> 记录每次同步；定时补偿任务（指数退避重试，默认 5 次后转人工）；同步监控页（列表 SyncStatus 插件 + 人工重推动作）。<br>
+<b>Q1 决策落地：</b>自动重试次数/间隔可配置（系统设置），超限转人工重推；告警推送渠道列为 P1 候选（M8+）。<br>
+<b>对账：</b>WMS 台账 vs ERP 库存对账报表；不平差异按作业日志+单据流水定位，人工核查后重同步或调整（7.4）。<br>
+<b>部署（两阶段之第一阶段）：</b>单体 wms-admin 生产部署（Nginx + MySQL8 主备 + Redis）；打印服务接入（sys_print_template 驱动单据打印）。<br>
+<b>表（1）：</b>sync_record。</td></tr>
+<tr><td><b>关键交付物</b></td><td>同步监控与人工重推界面；定时补偿任务与配置项；对账报表；生产环境部署包与运维手册；全链路闭环演练报告（引入→执行→台账→回写→对账五环节贯通）。</td></tr>
+<tr><td><b>依赖</b></td><td>M3/M4/M5（同步轴组件与回写接口）；可与 M6 收尾并行。</td></tr>
+<tr><td><b>验收标准</b></td><td>① 同一单据重复触发同步不产生重复 ERP 单号（幂等键生效）；② 重试按配置执行且超限转人工；③ 对账报表可定位差异单据；④ 生产部署后 P0 全模块可用；⑤ 端到端演练：ERP 发货通知→出库单生效→回写出库单号→对账平账全流程通过。</td></tr>
+</table>
+
+<h3 id="s3-8">3.8 M8+ 候选迭代（P1，不承诺）</h3>
+<ul>
+<li><b>同步失败自动重试与告警推送通道</b>（PRD 2.3 / Q1 的告警部分）：企业微信/邮件等通道接入。</li>
+<li><b>盘盈盘亏审批流</b>：将 M5 的单级主管确认升级为可配置多级审批流。</li>
+<li><b>库存预警、效期/回潮率批次策略</b>：基于 inv_batch_stock 的阈值预警与批次策略。</li>
+<li><b>部署第二阶段（微服务化拆分）</b>：asrs、sync 独立部署与消息网关（wms-message-gateway）引入。</li>
+</ul>
+
+<!-- ================================================================ -->
+<h2 id="s4">4 待定问题 Q1~Q4 建议决策</h2>
+<p>PRD 第 9 章四项待定问题在本计划中给出建议方案并落入对应迭代；均为 <span class="assume">[Assumption 待评审]</span>，需业务方确认后固化为需求变更，不影响迭代顺序。</p>
+<table>
+<tr><th style="width:56px;">编号</th><th>问题（PRD 第 9 章）</th><th>建议方案</th><th>影响迭代</th><th>状态</th></tr>
+<tr><td>Q1</td><td>同步 ERP 失败的自动重试次数、间隔与告警通知渠道</td><td>定时补偿任务<b>指数退避重试</b>（默认 5 次，次数/间隔入系统设置可配）；超限转<b>人工重推</b>界面（同步监控页按 biz_type/doc_no/direction 展示失败原因）；告警推送渠道（企业微信/邮件）列为 P1。以 ERP 单号判重保证幂等。</td><td>M7（告警 → M8+）</td><td class="assume">[Assumption 待评审]</td></tr>
+<tr><td>Q2</td><td>盘盈亏是否需要审批流及审批角色；调整是否回写 ERP</td><td>P0：<b>单级主管确认</b>（盘存单生效后生成盘盈亏调整记录，仓库主管在确认动作中放行/驳回）；确认后<b>回写 ERP 数量变更</b>，保持账实一致。P1：升级为可配置审批流。</td><td>M5（审批流 → M8+）</td><td class="assume">[Assumption 待评审]</td></tr>
+<tr><td>Q3</td><td>PDA"调拨"与"移库"的边界（是否必须跨仓/跨货主）</td><td><b>移库单仅承接同一仓库内</b>的仓位变更（总量不变、仓位变更同步 ERP）；<b>调拨=跨仓库/跨货主</b>转移，P0 以"出库单+入库单"组合承接，不做独立调拨单据；PDA"调拨"入口引导创建出库+入库单对。后续如 ERP 提供调拨单源，可在 P1 引入独立调拨单。</td><td>M5（PDA 语义 → M6）</td><td class="assume">[Assumption 待评审]</td></tr>
+<tr><td>Q4</td><td>生效单据的冲销/红冲机制（当前仅能查看）</td><td>引入<b>红冲单</b>：对已生效且同步的单据生成负向红冲单（数量取反、引用原单号），原单<b>不删不改</b>保持留痕；红冲单走同一状态机与同步轴，ERP 侧以负向单据对冲。入口限于入库单/出库单/移库单，权限限定仓库主管。</td><td>M3（组件，供 M4/M5 复用）</td><td class="assume">[Assumption 待评审]</td></tr>
+</table>
+<div class="warn">另有两处 PRD 内标注需在开发中一并处理：① 产件收货核对不一致时提示人工处理 <span class="assume">[Assumption]</span>（M3）；② 生效单据不可删除在原型未拦截，实施必须补齐拦截 <span class="assume">[Assumption]</span>（M3 状态机公共组件统一解决，M4/M5 继承）。</div>
+
+<!-- ================================================================ -->
+<h2 id="s5">5 M1 任务分解样例</h2>
+<p>M1 按"表 → 服务 → 页面 → 联调"四层分解到任务级，作为后续迭代的细化模板（每个迭代开工前以同样粒度展开）。</p>
+<table>
+<tr><th style="width:70px;">层次</th><th>任务</th><th>产出/完成定义</th></tr>
+<tr><td rowspan="3">T1 工程</td><td>1.1 创建 Maven 聚合工程 wms-admin</td><td>六子模块骨架 + 启动类 + 全局配置（数据源/Redis/定时任务/日志），本地可启动</td></tr>
+<tr><td>1.2 沿用内核接入</td><td>wms-core/framework/generator 依赖接入；登录认证与基础中间件可用（不减弱基线）</td></tr>
+<tr><td>1.3 数据库初始化</td><td>执行 wms_table_design.sql（M1 范围 8 张）+ sys_field_config 初始化脚本入库</td></tr>
+<tr><td rowspan="3">T2 引擎</td><td>2.1 动态列表引擎贯通</td><td>sys_field_config → ISysFieldConfigService → TableNode → DataViewMetaData → 分页返回全链路跑通</td></tr>
+<tr><td>2.2 表单引擎</td><td>AbstractDynamicsFormService 主子表保存（main().sub()）可用，含必填校验钩子</td></tr>
+<tr><td>2.3 条件树 + 插件</td><td>条件树 DSL 双编译目标 + 三层防线单测；6 插件注册进 PluginRegistry 并通过回归用例</td></tr>
+<tr><td rowspan="3">T3 服务</td><td>3.1 权限服务</td><td>sys_module_group/sys_func_module/sys_role_module 两级权限树 CRUD + 菜单过滤接口</td></tr>
+<tr><td>3.2 用户/角色/字典/设置服务</td><td>sys_user、sys_role、sys_user_role、base_dict/base_dict_item（业务字典）、sys_setting 服务与接口</td></tr>
+<tr><td>3.3 导入导出桩</td><td>列表导出/模板下载按钮位与服务接口（实现于 M2）</td></tr>
+<tr><td rowspan="3">T4 页面与联调</td><td>4.1 系统管理 6 模块页面</td><td>用户信息、角色设置（含权限树）、模块组别、功能模块、业务字典、系统设置 动态列表配置上线</td></tr>
+<tr><td>4.2 引擎回归</td><td>对照 xinao-crm 基线用例回归列表/表单/插件（增强不减弱证据留存）</td></tr>
+<tr><td>4.3 M1 验收演练</td><td>按 3.1 验收标准逐项演示并记录</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2 id="s6">6 风险与依赖</h2>
+<table>
+<tr><th style="width:90px;">类别</th><th>风险/依赖</th><th>影响迭代</th><th>应对</th></tr>
+<tr><td>外部接口</td><td>ERP(K3) 接口规格：收料在途、三类出库源单、入/出库回写、仓位（货位）回写、数量调整（Q2）</td><td>M3、M4、M5</td><td>各迭代开工前 2 周冻结接口规格并建立联调环境；接口未冻结则该部分延后但不阻塞单据与台账开发</td></tr>
+<tr><td>外部接口</td><td>MES 产件移交（箱码/批号/缸号/标重随箱）；WCS 设备协议（输送线/堆垛机任务下发与回执）</td><td>M3、M6</td><td>M6 前完成 WCS 协议联调环境；以 asrs_scan_log/作业日志先行对齐报文字段</td></tr>
+<tr><td>需求</td><td>Q1~Q4 建议方案未评审通过</td><td>M3、M5、M7</td><td>按第 4 章建议先行实现，评审变更后局部调整；Q2/Q3/Q4 决策点均收敛在单迭代内，不产生跨迭代返工</td></tr>
+<tr><td>技术</td><td>引擎改造回归风险：6 插件与条件树为对基线的增强</td><td>M1 起</td><td>增强合规声明约束（只增不改签名）；每次引擎变更跑基线回归用例并留存证据</td></tr>
+<tr><td>数据</td><td>基础数据质量：ERP 物料/仓位映射、立库设备库位对照</td><td>M2、M6</td><td>M2 提供导入模板与校验回执；上线前完成仓位-设备库位对照表核对</td></tr>
+<tr><td>原型一致性</td><td>PRD 以原型行为为依据，实现时可能出现原型未覆盖的边界</td><td>全部</td><td>边界问题按 PRD 第 8 章共享规则裁决；无法裁决项记入 [TBD] 清单随迭代评审</td></tr>
+</table>
+
+<!-- ================================================================ -->
+<h2 id="s7">7 验收与质量门禁</h2>
+<h3>7.1 覆盖核对法（计划完整性）</h3>
+<ul>
+<li><b>FR 覆盖：</b>FR-01~FR-14 全部映射到迭代（FR-01~04→M3，FR-05/06/10/11→M4，FR-08/09→M5，FR-07→M6，FR-12/13/14→M2），无遗漏。</li>
+<li><b>模块覆盖：</b>P0 五组 27 项全部映射（6+8+4+5+2+2），含 2 个终端界面。</li>
+<li><b>表覆盖：</b>43 张表 + sys_field_config 全部落入迭代（M1:8、M2:10、M3:12、M4:7、M5:5、M6:1、M7:1）。</li>
+</ul>
+<h3>7.2 每迭代通用门禁</h3>
+<table>
+<tr><th>门禁项</th><th>标准（依据 PRD 第 8 章共享规则）</th></tr>
+<tr><td>必填校验</td><td>编辑弹窗保存校验必填字段，首个空缺项聚焦并提示"「字段」为必填项"</td></tr>
+<tr><td>删除约束</td><td>需先选中行；删除前二次确认；生效单据不可删除（制作中/制单中可删）——含原型未拦截项的补齐</td></tr>
+<tr><td>行选择</td><td>编辑/查看/复制/删除均以选中行为前提，未选中阻断提示</td></tr>
+<tr><td>列配置作用域</td><td>查询选项/列设置按模块独立保存；重开选项卡重置为默认</td></tr>
+<tr><td>权限可见性</td><td>菜单按两级权限树过滤；未授权模块不渲染入口</td></tr>
+<tr><td>空态</td><td>无匹配记录显示"没有符合条件的记录"，不显示空表格</td></tr>
+<tr><td>增强合规</td><td>对照 xinao-crm 基线回归通过；变更仅限"新增/扩展/插件注册"，无基线签名修改（架构规划第 6 章四类合法操作）</td></tr>
+</table>
+<h3>7.3 里程碑验收要点</h3>
+<ul>
+<li><b>M3 出口：</b>入库闭环贯通——收货→码单→组托→入库单生效→批次台账增加→ERP 入库单号回填+同步成功。</li>
+<li><b>M4 出口：</b>出库闭环贯通——三源导入→去重阻断→锁批次→下架确认扣账→回写 ERP 出库单号；任务与日志留痕完整。</li>
+<li><b>M5 出口：</b>移库总量不变且仓位同步 ERP；盘存盈亏经主管确认后调账并回写。</li>
+<li><b>M6 出口：</b>未选任务阻断生效；扫码下架后托盘/箱码/批次/仓位四处状态一致；PDA 与 PC 数据同源。</li>
+<li><b>M7 出口：</b>幂等重试与人工重推可用；对账报表定位差异；生产部署完成；五环节端到端演练通过（闭环判定："生效 + 同步成功"双终态）。</li>
+</ul>
+
+<p style="margin-top:36px;color:#8a97a5;font-size:12px;">附：本计划依据 <code>d:\prj\wms\WMS智能仓储系统PRD.html</code>（V3.69）、<code>d:\prj\wms\WMS系统架构规划.html</code>（V1.0）、<code>d:\prj\wms\wms_table_design.sql</code> 与交互原型（<code>d:\prj\wms\prototype</code>）编制；Q1~Q4 建议与 [Assumption] 项需业务方评审确认后固化为需求基线。</p>
+</main>
+</div>
+</body>
+</html>

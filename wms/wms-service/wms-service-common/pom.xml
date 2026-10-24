@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.wms</groupId>
+        <artifactId>wms-service</artifactId>
+        <version>5.0.0</version>
+    </parent>
+
+    <artifactId>wms-service-common</artifactId>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!--  <dependency>
+              <groupId>com.sun</groupId>
+              <artifactId>javadoc</artifactId>
+              <version>1.8</version>
+          </dependency>-->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>2.0.20</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- 单元测试（版本走 spring-boot-dependencies BOM） -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- surefire 3.x 的 JUnit Platform provider 需要 launcher 才能发现测试 -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+    <!-- 单测基建：surefire 3.x 识别 JUnit5；覆盖根 pom 的 <groups> 标签过滤；
+         useManifestOnlyJar=false 规避 Windows 跨盘符 manifest jar 导致 0 测试 -->
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.2.5</version>
+            <configuration>
+                <groups combine.self="override"></groups>
+                <excludedGroups combine.self="override"></excludedGroups>
+                <useManifestOnlyJar>false</useManifestOnlyJar>
+            </configuration>
+        </plugin>
+    </plugins>
+    <!--<plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.11.0</version>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+                <encoding>UTF-8</encoding>
+                <compilerArguments>
+                    <verbose/>
+                    <bootclasspath>D:/Program Files/Java/jdk1.8.0_271/lib/tools.jar</bootclasspath>
+                </compilerArguments>
+            </configuration>
+        </plugin>
+    </plugins>-->
+    </build>
+</project>

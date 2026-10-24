@@ -1,0 +1,67 @@
+# =====================================================================
+# 云梭 WMS V1.0 生产部署 Nginx 配置样例（M7 两阶段部署·第一阶段：单体 wms-admin）
+# 部署形态：Nginx(80/443) → wms-admin(jar, 8080) + MySQL8 主备 + Redis
+# =====================================================================
+
+worker_processes  auto;
+
+events {
+    worker_connections  10240;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile      on;
+    keepalive_timeout  65;
+    client_max_body_size 100m;
+
+    # 上游：wms-admin 单体（两阶段第二阶段微服务化时按服务拆分 upstream）
+    upstream wms_admin {
+        server 127.0.0.1:8080 max_fails=3 fail_timeout=30s;
+        # 备节点（如做双活/蓝绿）：server 127.0.0.1:8081 backup;
+    }
+
+    server {
+        listen       80;
+        server_name  wms.example.com;
+
+        # 前端静态资源（wms-ui 构建产物 dist/）
+        location / {
+            root   /opt/wms/wms-ui-dist;
+            index  index.html;
+            try_files $uri $uri/ /index.html;   # history 路由回退
+        }
+
+        # 后端接口反代（引擎/终端/PDA/对账等全部 /prod-api、/common、/system 前缀）
+        location /prod-api/ {
+            proxy_pass http://wms_admin/;
+            proxy_set_header Host              $host;
+            proxy_set_header X-Real-IP         $remote_addr;
+            proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_read_timeout 120s;
+        }
+
+        # 车间终端 H5 免登入口（立库扫码终端 / PDA 工作台）
+        # 直达 URL：http://wms.example.com/terminal/scan 、 http://wms.example.com/pda
+        # （前端路由白名单 + 后端接口 SaIgnore，无需额外配置）
+
+        # 单据打印服务（sys_print_template 驱动）：打印客户端经 WebSocket/HTTP 接入
+        # location /print/ {
+        #     proxy_pass http://127.0.0.1:9100/;
+        #     proxy_http_version 1.1;
+        #     proxy_set_header Upgrade $http_upgrade;      # WebSocket 升级
+        #     proxy_set_header Connection "upgrade";
+        # }
+    }
+
+    # HTTPS（上线启用）
+    # server {
+    #     listen 443 ssl;
+    #     server_name wms.example.com;
+    #     ssl_certificate     /opt/wms/nginx/ssl/wms.example.com.pem;
+    #     ssl_certificate_key /opt/wms/nginx/ssl/wms.example.com.key;
+    #     ... 同 80 端口 location 配置 ...
+    # }
+}

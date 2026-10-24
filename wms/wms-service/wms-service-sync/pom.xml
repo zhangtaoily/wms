@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.wms</groupId>
+        <artifactId>wms-service</artifactId>
+        <version>5.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>wms-service-sync</artifactId>
+
+    <description>
+        ERP 同步与对账（K3Cloud 单据/库存同步，sync_record 对账，M7 落地）
+    </description>
+
+    <dependencies>
+        <!-- 通用工具-->
+        <dependency>
+            <groupId>com.wms</groupId>
+            <artifactId>wms-common</artifactId>
+        </dependency>
+        <!-- M7：同步补偿任务/对账依赖单据域服务与 ERP 同步桩 -->
+        <dependency>
+            <groupId>com.wms</groupId>
+            <artifactId>wms-service-common</artifactId>
+            <version>5.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wms</groupId>
+            <artifactId>wms-service-base</artifactId>
+            <version>5.0.0</version>
+        </dependency>
+    </dependencies>
+
+</project>

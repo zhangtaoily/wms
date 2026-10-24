@@ -262,6 +262,7 @@
         var cls = c.cls || "";
         return {
           t: c.t, k: c.k, origCls: cls, cmap: c.cmap || null, type: c.type || null,
+          sql: c.sql || "",
           w: c.w || 60,
           align: /(^|\s)ctr(\s|$)/.test(cls) ? "居中" : /(^|\s)num(\s|$)/.test(cls) ? "靠右" : "默认",
           query: true, fixed: false, wrap: false, sort: "未设置", sum: false
@@ -748,10 +749,10 @@
     var ov = document.createElement("div");
     ov.style.cssText = "position:absolute;inset:0;background:rgba(25,45,70,.22);pointer-events:auto";
     layer.appendChild(ov);
-    var W = 900, H = 560;
+    var W = 1180, H = 560;
     var win = document.createElement("div");
     win.className = "win";
-    win.style.cssText = "width:" + W + "px;height:" + H + "px;left:" +
+    win.style.cssText = "max-width:96vw;width:" + W + "px;height:" + H + "px;left:" +
       Math.max(16, Math.round((window.innerWidth - W) / 2)) + "px;top:" +
       Math.max(16, Math.min(110, Math.round((window.innerHeight - H) / 2) - 10)) + "px";
 
@@ -767,6 +768,7 @@
       s += '<td class="ctr"><select data-f="align">' + selOpt(CS_ALIGNS, c.align) + "</select></td>";
       s += '<td class="ctr"><input type="text" data-f="w" value="' + c.w + '"></td>';
       s += '<td class="ctr">-</td>';
+      s += '<td><div class="cs-sql' + (c.sql ? "" : " cs-empty") + '" data-sql="' + i + '" title="' + esc(c.sql || "点击设置取值表达式") + '">' + (c.sql ? esc(c.sql) : "（未设置）") + "</div></td>";
       s += '<td class="ctr"><input type="checkbox" data-f="query"' + (c.query ? " checked" : "") + "></td>";
       s += '<td class="ctr"><input type="checkbox" data-f="fixed"' + (c.fixed ? " checked" : "") + "></td>";
       s += '<td class="ctr"><input type="checkbox" data-f="wrap"' + (c.wrap ? " checked" : "") + "></td>";
@@ -816,9 +818,10 @@
 
     var s = '<div class="win-title"><span class="w-ico">▦</span><span class="w-text">列设置 - ' + esc(mod.title) + '</span><span class="w-btn" data-w="close" title="关闭">✕</span></div>';
     s += '<div class="win-body"><div class="win-content" style="padding:8px;display:flex;flex-direction:column">';
+    s += '<div class="cs-note">列表查询结果 = 各可见列的「取值表达式」(sqlColumn) 拼接而成的 SELECT 投影；查询条件 (WHERE) 由参数化条件树生成，sqlQuery 默认留空。点击「取值表达式」单元格可打开编辑器（直接取值 / 值翻译 / 高级表达式）。</div>';
     s += '<div class="grid-wrap cs-grid" style="flex:1;border:1px solid #c7d5e3">';
     s += '<table class="grid"><thead><tr>';
-    ["序号", "列标题", "列名称", "靠齐", "列宽", "格式", "查询", "固定", "折行", "排序", "合计"].forEach(function (h) {
+    ["序号", "列标题", "列名称", "靠齐", "列宽", "格式", "取值表达式 (sqlColumn)", "查询", "固定", "折行", "排序", "合计"].forEach(function (h) {
       s += "<th>" + esc(h) + "</th>";
     });
     s += "</tr></thead><tbody>" + work.map(rowHtml).join("") + "</tbody></table>";
@@ -835,6 +838,16 @@
 
     /* 行选中(不重建 DOM, 保证下拉框可用) */
     win.addEventListener("click", function (e) {
+      var sq = e.target.closest("div.cs-sql");
+      if (sq) {
+        var si = parseInt(sq.getAttribute("data-sql"), 10);
+        openSqlBuilder({
+          title: work[si].t, sql: work[si].sql,
+          sources: dataSources(MODULES[key], key),
+          onApply: function (v) { work[si].sql = v; renderRows(); }
+        });
+        return;
+      }
       var tr = e.target.closest("tr[data-cs]");
       if (!tr) return;
       var i = parseInt(tr.getAttribute("data-cs"), 10);
@@ -856,6 +869,188 @@
       else c[f] = t.checked;
     });
     win.querySelector('.w-btn[data-w="close"]').onclick = function () { closeWin(win); };
+    enableDrag(win);
+  }
+
+  /* ============ 取值表达式编辑器(直接取值 / 值翻译 / 高级表达式) ============ */
+  /* 数据源来自 WMS_DATAVIEW(列表 dataview 声明: 主表 + JOIN 别名)，字段来自 WMS_SCHEMA(表结构注册表) */
+  function dataSources(mod, key) {
+    var dv = (typeof WMS_DATAVIEW !== "undefined" && WMS_DATAVIEW[key]) || null;
+    var list = [], seen = {};
+    function add(a, t) { if (t && WMS_SCHEMA[t] && !seen[a]) { seen[a] = 1; list.push({ alias: a, table: t }); } }
+    if (dv && dv.main) add(dv.main, dv.main);
+    if (dv) (dv.joins || []).forEach(function (j) { add(j.alias, j.table); });
+    if (!list.length) {
+      (mod.columns || []).forEach(function (c) {
+        var m = /([A-Za-z_][\w$]*)\.([A-Za-z_]\w*)/.exec(c.sql || "");
+        if (m) add(m[1], m[1]);
+      });
+    }
+    return list;
+  }
+  function truncCn(s, n) { s = String(s || ""); return s.length > n ? s.slice(0, n) + "…" : s; }
+  function quoteVal(v) { return /^\d+$/.test(v) ? v : "'" + v + "'"; }
+  function buildCase(alias, col, rows, els) {
+    var s = "(CASE WHEN " + alias + "." + col + " = " + quoteVal(rows[0][0]) + " THEN '" + rows[0][1] + "'";
+    for (var i = 1; i < rows.length; i++) s += " WHEN " + alias + "." + col + " = " + quoteVal(rows[i][0]) + " THEN '" + rows[i][1] + "'";
+    if (els) s += " ELSE '" + els + "'";
+    return s + " END)";
+  }
+  function parseSqlExpr(sql) {
+    var s = String(sql || "").trim();
+    if (!s) return { mode: 2, alias: "", col: "", pairs: [], els: "" };
+    if (/^\(?\s*case/i.test(s)) {
+      var o = { mode: 1, alias: "", col: "", pairs: [], els: "" };
+      var h = /case\s+when\s+([A-Za-z_][\w$]*)\.([A-Za-z_]\w*)\s*=/i.exec(s);
+      if (h) { o.alias = h[1]; o.col = h[2]; }
+      var re = /when\s+[A-Za-z_][\w$]*\.[A-Za-z_]\w*\s*=\s*(?:'([^']*)'|([\w$]+))\s+then\s+'([^']*)'/gi, m;
+      while ((m = re.exec(s))) o.pairs.push([m[2] !== undefined ? m[2] : m[1], m[3]]);
+      var e2 = /else\s+'([^']*)'/i.exec(s);
+      if (e2) o.els = e2[1];
+      return o;
+    }
+    var d = /^([A-Za-z_][\w$]*)\.([A-Za-z_]\w*)$/.exec(s);
+    if (d) return { mode: 0, alias: d[1], col: d[2], pairs: [], els: "" };
+    return { mode: 2, alias: "", col: "", pairs: [], els: "" };
+  }
+  function openSqlBuilder(opt) {
+    var sources = opt.sources || [];
+    var cur = parseSqlExpr(opt.sql);
+    if (cur.alias && !sources.some(function (s) { return s.alias === cur.alias; }))
+      sources.unshift({ alias: cur.alias, table: WMS_SCHEMA[cur.alias] ? cur.alias : null });
+    if (cur.mode === 1 && !cur.pairs.length) cur.pairs = [["1", "是"], ["0", "否"]];
+    var layer = $("dialogLayer");
+    var ov = document.createElement("div");
+    ov.style.cssText = "position:absolute;inset:0;background:rgba(25,45,70,.18);pointer-events:auto";
+    layer.appendChild(ov);
+    var W = 560;
+    var win = document.createElement("div");
+    win.className = "win";
+    win.style.cssText = "max-width:96vw;width:" + W + "px;height:auto;left:" +
+      Math.max(16, Math.round((window.innerWidth - W) / 2)) + "px;top:" +
+      Math.max(40, Math.round((window.innerHeight - 430) / 2)) + "px";
+    function srcOpts(sel) {
+      return sources.map(function (s) {
+        var tb = WMS_SCHEMA[s.table] || { cm: "" };
+        return '<option value="' + esc(s.alias) + '"' + (s.alias === sel ? " selected" : "") + ' title="' + esc(tb.cm) + '">' +
+          esc(s.alias) + (tb.cm ? " — " + esc(truncCn(tb.cm, 14)) : "") + "</option>";
+      }).join("");
+    }
+    function fldOpts(alias, sel) {
+      var src = null;
+      sources.forEach(function (s) { if (s.alias === alias) src = s; });
+      var tb = src && WMS_SCHEMA[src.table];
+      var o = '<option value="">请选择字段</option>';
+      if (tb) tb.cols.forEach(function (p) {
+        o += '<option value="' + esc(p[0]) + '" title="' + esc(p[1]) + '"' + (p[0] === sel ? " selected" : "") + ">" +
+          esc(p[0]) + (p[1] ? " (" + esc(truncCn(p[1], 18)) + ")" : "") + "</option>";
+      });
+      else if (sel) o += '<option value="' + esc(sel) + '" selected>' + esc(sel) + "（未注册）</option>";
+      return o;
+    }
+    function mapRowsHtml(pairs) {
+      return pairs.map(function (p) {
+        return '<div class="sb-map"><input class="sb-v" value="' + esc(p[0]) + '" placeholder="存储值">' +
+          '<span class="sb-arrow">→</span><input class="sb-d" value="' + esc(p[1]) + '" placeholder="显示值">' +
+          '<span class="sb-del" title="删除此映射">×</span></div>';
+      }).join("");
+    }
+    function bodyHtml(bi, inner) {
+      return '<div class="dtab-body sb-body" data-bi="' + bi + '"' + (cur.mode === bi ? "" : ' style="display:none"') + ">" + inner + "</div>";
+    }
+    var defAlias = cur.alias || (sources[0] && sources[0].alias) || "";
+    var s = '<div class="win-title"><span class="w-ico">ƒ</span><span class="w-text">取值表达式 - ' + esc(opt.title) + '</span><span class="w-btn" data-w="close" title="关闭">✕</span></div>';
+    s += '<div class="win-body"><div class="win-content" style="padding:0">';
+    s += '<div class="tab-group"><div class="dtabs">';
+    [["直接取值", 0], ["值翻译 (CASE WHEN)", 1], ["高级表达式", 2]].forEach(function (t) {
+      s += '<div class="dtab' + (cur.mode === t[1] ? " active" : "") + '" data-ti="' + t[1] + '">' + t[0] + "</div>";
+    });
+    s += "</div>";
+    if (!sources.length) {
+      s += bodyHtml(0, '<div class="sb-tip">该模块未注册数据源(dataview)，请使用「高级表达式」。</div>');
+      s += bodyHtml(1, '<div class="sb-tip">该模块未注册数据源(dataview)，请使用「高级表达式」。</div>');
+    } else {
+      s += bodyHtml(0,
+        '<div class="sb-row"><label>数据源</label><select class="sb-src0">' + srcOpts(defAlias) + "</select></div>" +
+        '<div class="sb-row"><label>字段</label><select class="sb-fld0">' + fldOpts(defAlias, cur.col) + "</select></div>" +
+        '<div class="sb-tip">数据源 = 主表 / JOIN 表的「别名」(dataview 声明，别名可与表名不同)；字段清单来自表结构注册表(列名 + 中文注释)。</div>' +
+        '<div class="sb-prev sb-prev0">—</div>');
+      s += bodyHtml(1,
+        '<div class="sb-row"><label>数据源</label><select class="sb-src1">' + srcOpts(defAlias) + "</select></div>" +
+        '<div class="sb-row"><label>字段</label><select class="sb-fld1">' + fldOpts(defAlias, cur.col) + "</select></div>" +
+        '<div class="sb-rows">' + mapRowsHtml(cur.pairs) + "</div>" +
+        '<div class="sb-row"><label>ELSE</label><input type="text" class="sb-else" value="' + esc(cur.els) + '" placeholder="否则显示(可空)"><button class="btn" data-btn="添加映射行">＋ 添加映射行</button></div>' +
+        '<div class="sb-prev sb-prev1">—</div>');
+    }
+    s += bodyHtml(2,
+      '<div class="sb-tip">专家模式：完整 SQL 表达式(表.列 / CASE WHEN / 函数 / JOIN 别名列)，原样写入 sqlColumn 拼 SELECT。</div>' +
+      '<textarea class="sb-raw" rows="4" style="width:100%;box-sizing:border-box;font-family:Consolas,monospace;font-size:12px">' + esc(opt.sql || "") + "</textarea>");
+    s += "</div></div></div>";
+    s += '<div class="win-foot" style="justify-content:flex-end;gap:8px"><button class="btn primary" data-btn="确 定">确 定</button><button class="btn" data-btn="取 消">取 消</button></div>';
+    win.innerHTML = s;
+    win._ctx = {
+      ov: ov, key: null, row: null,
+      custom: function (label, w) {
+        if (label === "确 定" || label === "确定") {
+          var act = parseInt(w.querySelector(".dtab.active").getAttribute("data-ti"), 10), v = "";
+          if (act === 0) {
+            var a = w.querySelector(".sb-src0").value, c = w.querySelector(".sb-fld0").value;
+            if (!a || !c) { msgbox("warn", "请选择数据源与字段！"); return true; }
+            v = a + "." + c;
+          } else if (act === 1) {
+            var a1 = w.querySelector(".sb-src1").value, c1 = w.querySelector(".sb-fld1").value, rows = [];
+            w.querySelectorAll(".sb-map").forEach(function (r) {
+              var vv = r.querySelector(".sb-v").value.trim(), dd = r.querySelector(".sb-d").value.trim();
+              if (vv && dd) rows.push([vv, dd]);
+            });
+            if (!a1 || !c1 || !rows.length) { msgbox("warn", "请选择字段并至少配置一行完整映射！"); return true; }
+            v = buildCase(a1, c1, rows, w.querySelector(".sb-else").value.trim());
+          } else {
+            v = w.querySelector(".sb-raw").value.trim();
+          }
+          opt.onApply(v);
+          closeWin(w);
+          return true;
+        }
+        if (label === "取 消" || label === "取消") { closeWin(w); return true; }
+        if (label === "添加映射行") {
+          w.querySelector(".sb-rows").insertAdjacentHTML("beforeend", mapRowsHtml([["", ""]]));
+          return true;
+        }
+        return false;
+      }
+    };
+    layer.appendChild(win);
+    function refresh() {
+      var p0 = win.querySelector(".sb-prev0");
+      if (p0) {
+        var a = win.querySelector(".sb-src0").value, c = win.querySelector(".sb-fld0").value;
+        p0.textContent = a && c ? a + "." + c : "—";
+      }
+      var p1 = win.querySelector(".sb-prev1");
+      if (p1) {
+        var a1 = win.querySelector(".sb-src1").value, c1 = win.querySelector(".sb-fld1").value, rows = [];
+        var els = win.querySelector(".sb-else").value.trim();
+        win.querySelectorAll(".sb-map").forEach(function (r) {
+          var vv = r.querySelector(".sb-v").value.trim(), dd = r.querySelector(".sb-d").value.trim();
+          if (vv && dd) rows.push([vv, dd]);
+        });
+        p1.textContent = a1 && c1 && rows.length ? buildCase(a1, c1, rows, els) : "—";
+      }
+    }
+    win.addEventListener("change", function (e) {
+      var t = e.target;
+      if (t.classList.contains("sb-src0")) win.querySelector(".sb-fld0").innerHTML = fldOpts(t.value, "");
+      if (t.classList.contains("sb-src1")) win.querySelector(".sb-fld1").innerHTML = fldOpts(t.value, "");
+      refresh();
+    });
+    win.addEventListener("input", refresh);
+    win.addEventListener("click", function (e) {
+      var d = e.target.closest(".sb-del");
+      if (d) { var m = d.closest(".sb-map"); if (m) { m.parentNode.removeChild(m); refresh(); } }
+    });
+    win.querySelector('.w-btn[data-w="close"]').onclick = function () { closeWin(win); };
+    refresh();
     enableDrag(win);
   }
 

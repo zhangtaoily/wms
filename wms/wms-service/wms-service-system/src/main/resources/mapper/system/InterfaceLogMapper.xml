@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.system.mapper.InterfaceLogMapper">
+    <!-- CRM 版曾按 sal_* 单据表按人过滤（WMS 库无该表），改为通用日志过滤 -->
+    <select id="selectPageByUser" resultType="com.wms.domain.SysInterfaceLog">
+        SELECT sys_interface_log.* FROM sys_interface_log
+        WHERE create_time >= #{date}
+        AND `status` = 3
+        AND pact_id NOT IN (
+            SELECT DISTINCT pact_id FROM sys_interface_log WHERE create_time >= #{date}
+            AND `status` = 2
+        )
+        ORDER BY sys_interface_log.create_time DESC
+        LIMIT #{offset}, #{size}
+    </select>
+</mapper>

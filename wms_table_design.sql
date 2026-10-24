@@ -168,7 +168,8 @@ CREATE TABLE base_dict_item (
 CREATE TABLE doc_out_notice (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   notice_no    VARCHAR(32)  NOT NULL COMMENT '出库通知单号（BC开头）',
-  status       VARCHAR(16)  NOT NULL DEFAULT '制单中' COMMENT '单据状态（生效/制单中）',
+  status       TINYINT      NOT NULL DEFAULT 0 COMMENT '单据状态（0草稿 1制单中 2审核中 3通过 4驳回，引擎状态机）',
+  notice_type  VARCHAR(32)  DEFAULT NULL COMMENT '通知来源（发货通知单/领料申请单/采购退料单/手工新建）',
   notice_date  DATE         DEFAULT NULL COMMENT '单据日期',
   erp_no       VARCHAR(32)  DEFAULT NULL COMMENT 'ERP单号（发货通知/销售订单）',
   erp_date     DATE         DEFAULT NULL COMMENT 'ERP单据日期',
@@ -238,17 +239,21 @@ CREATE TABLE doc_receiving (
 CREATE TABLE doc_code_collect (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   code_no      VARCHAR(32)  NOT NULL COMMENT '码单号（MD开头）',
-  status       VARCHAR(16)  NOT NULL DEFAULT '制单中' COMMENT '单据状态（生效/制单中）',
+  status       TINYINT      NOT NULL DEFAULT 0 COMMENT '单据状态（0=制单中 3=生效，引擎 BillStatusEnum）',
   biz_type     VARCHAR(32)  NOT NULL COMMENT '业务类型（产件入库/采购入库/调拨入库/销售入库）',
   collect_date DATE         DEFAULT NULL COMMENT '收录日期',
   erp_no       VARCHAR(32)  DEFAULT NULL COMMENT '关联ERP单号',
   batch_no     VARCHAR(64)  DEFAULT NULL COMMENT '批号',
   qty          DECIMAL(18,3) DEFAULT NULL COMMENT '数量（KG）',
+  auditor      BIGINT UNSIGNED DEFAULT NULL COMMENT '生效人（引擎PASS回写）(设计补充)',
+  audit_time   DATETIME     DEFAULT NULL COMMENT '生效时间（引擎PASS回写）(设计补充)',
   remark       VARCHAR(255) DEFAULT NULL COMMENT '备注',
   creator      VARCHAR(32)  DEFAULT NULL COMMENT '创建人',
   create_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   updater      VARCHAR(32)  DEFAULT NULL COMMENT '修改人',
   update_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  auditor      BIGINT UNSIGNED DEFAULT NULL COMMENT '生效人（引擎PASS回写）',
+  audit_time   DATETIME     DEFAULT NULL COMMENT '生效时间（引擎PASS回写）',
   PRIMARY KEY (id),
   UNIQUE KEY uk_code_no (code_no),
   KEY idx_biz_type (biz_type),
@@ -280,7 +285,7 @@ CREATE TABLE doc_code_collect_detail (
 CREATE TABLE doc_pallet_order (
   id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   pallet_order_no  VARCHAR(32)  NOT NULL COMMENT '组托单号（UT开头）',
-  status           VARCHAR(16)  NOT NULL DEFAULT '生效' COMMENT '单据状态（生效/制单中）',
+  status           TINYINT      NOT NULL DEFAULT 0 COMMENT '单据状态（0=制单中 3=生效，引擎 BillStatusEnum）',
   pallet_type      VARCHAR(32)  NOT NULL COMMENT '组托方式（件入条码组托/传入条码组托/手动组托）',
   order_date       DATETIME     DEFAULT NULL COMMENT '单据日期',
   batch_no         VARCHAR(64)  DEFAULT NULL COMMENT '批号',
@@ -290,6 +295,8 @@ CREATE TABLE doc_pallet_order (
   create_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   updater          VARCHAR(32)  DEFAULT NULL COMMENT '修改人',
   update_time      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  auditor          BIGINT UNSIGNED DEFAULT NULL COMMENT '生效人（引擎PASS回写）',
+  audit_time       DATETIME     DEFAULT NULL COMMENT '生效时间（引擎PASS回写）',
   PRIMARY KEY (id),
   UNIQUE KEY uk_pallet_order_no (pallet_order_no),
   KEY idx_status (status)
@@ -319,6 +326,7 @@ CREATE TABLE doc_pallet_order_detail (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   order_id     BIGINT UNSIGNED NOT NULL COMMENT '组托单ID（doc_pallet_order.id）',
   pallet_id    BIGINT UNSIGNED DEFAULT NULL COMMENT '所属托盘明细ID（doc_pallet_order_pallet.id）',
+  pallet_no    VARCHAR(32)  DEFAULT NULL COMMENT '托盘号（平挂结构下箱明细与托盘组的关联键，前端从选中托盘带出）',
   seq          INT          NOT NULL DEFAULT 0 COMMENT '序号',
   box_code     VARCHAR(32)  NOT NULL COMMENT '箱码',
   mark_out      VARCHAR(16)  DEFAULT NULL COMMENT '标记出库（原型字段 markOut）',
@@ -340,13 +348,16 @@ CREATE TABLE doc_pallet_order_detail (
 CREATE TABLE doc_inbound (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   inbound_no    VARCHAR(32)  NOT NULL COMMENT '入库单号（B开头）',
-  status        VARCHAR(16)  NOT NULL DEFAULT '制作中' COMMENT '单据状态（生效/制作中）',
+  status        TINYINT      NOT NULL DEFAULT 0 COMMENT '单据状态（0=制作中 3=生效，引擎 BillStatusEnum）',
   inbound_date  DATE         DEFAULT NULL COMMENT '入库日期',
-  sync_status   VARCHAR(16)  NOT NULL DEFAULT '未同步' COMMENT 'ERP同步状态（成功/未同步）',
-  erp_doc_no    VARCHAR(32)  DEFAULT NULL COMMENT 'ERP单号（引入来源单号，如 FBDC77210）',
+  sync_status   TINYINT      NOT NULL DEFAULT 2 COMMENT 'ERP同步状态（1=已同步 2=未同步，与引擎枚举一致）',
+  erp_doc_no    VARCHAR(32)  DEFAULT NULL COMMENT 'ERP单号（引入来源单号，如 FBDC77210；空则同步失败停留）',
   erp_doc_type  VARCHAR(32)  DEFAULT NULL COMMENT 'ERP单据类型（生产订单明细/收料通知单/调拨出库单/发货通知单明细/领料申请单/采购退料单）',
   erp_in_no     VARCHAR(32)  DEFAULT NULL COMMENT '回写ERP的入库单号（如 SDL123456）',
   source_type   VARCHAR(16)  NOT NULL DEFAULT 'ERP' COMMENT '数据来源（ERP=单据引入 / MES=产件移交 / MANUAL=手工录单）(设计补充，PRD 6.1)',
+  reverse_flag  TINYINT      NOT NULL DEFAULT 0 COMMENT '红冲标志（1=红冲单，负向数量，Q4）',
+  source_inbound_no  VARCHAR(32) DEFAULT NULL COMMENT '红冲引用的原入库单号（reverse_flag=1 时必填）',
+  source_inbound_id  BIGINT UNSIGNED DEFAULT NULL COMMENT '红冲引用的原入库单ID（doc_inbound.id）',
   warehouse_id  BIGINT UNSIGNED DEFAULT NULL COMMENT '仓库ID（base_warehouse.id）',
   warehouse_name VARCHAR(64) DEFAULT NULL COMMENT '仓库名称（冗余）',
   inbound_type  VARCHAR(32)  NOT NULL COMMENT '入库类型（采购入库/产件入库/调拨入库/样品入库/退料入库/产存入库/销售退货入库）',
@@ -359,12 +370,15 @@ CREATE TABLE doc_inbound (
   create_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   updater       VARCHAR(32)  DEFAULT NULL COMMENT '修改人',
   update_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  auditor       BIGINT UNSIGNED DEFAULT NULL COMMENT '生效人（引擎PASS回写）',
+  audit_time    DATETIME     DEFAULT NULL COMMENT '生效时间（引擎PASS回写）',
   PRIMARY KEY (id),
   UNIQUE KEY uk_inbound_no (inbound_no),
   KEY idx_status (status),
   KEY idx_sync (sync_status),
-  KEY idx_warehouse (warehouse_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='入库单（上架确认后生成库存台账，生效后回写ERP入库单号，数据出口A）';
+  KEY idx_warehouse (warehouse_id),
+  KEY idx_source_inbound (source_inbound_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='入库单（上架确认后生成库存台账，生效后回写ERP入库单号，数据出口A；支持红冲，Q4）';
 
 -- 18. 入库单明细
 CREATE TABLE doc_inbound_detail (
@@ -385,7 +399,7 @@ CREATE TABLE doc_inbound_detail (
   std_weight    DECIMAL(18,3) DEFAULT NULL COMMENT '标重（KG）',
   gross_weight  DECIMAL(18,3) DEFAULT NULL COMMENT '毛重（KG）',
   net_weight    DECIMAL(18,3) DEFAULT NULL COMMENT '净重（KG）',
-  sync_status   VARCHAR(16)  DEFAULT NULL COMMENT '行级同步状态（成功/未同步）',
+  sync_status   TINYINT      DEFAULT 2 COMMENT '行级同步状态（1=已同步 2=未同步，随主表同步回写）',
   create_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (id),
   KEY idx_inbound (inbound_id),
@@ -396,9 +410,9 @@ CREATE TABLE doc_inbound_detail (
 CREATE TABLE doc_outbound (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   outbound_no   VARCHAR(32)  NOT NULL COMMENT '出库单号（OS开头）',
-  status        VARCHAR(16)  NOT NULL DEFAULT '制作中' COMMENT '单据状态（生效/制作中）',
+  status        TINYINT      NOT NULL DEFAULT 0 COMMENT '单据状态（0草稿 1制单中 2审核中 3通过 4驳回，引擎状态机）',
   outbound_date DATE         DEFAULT NULL COMMENT '出库日期',
-  sync_status   VARCHAR(16)  NOT NULL DEFAULT '未同步' COMMENT 'ERP同步状态（成功/未同步）',
+  sync_status   TINYINT      NOT NULL DEFAULT 2 COMMENT 'ERP同步状态（1成功 2未同步）',
   erp_order_no  VARCHAR(32)  DEFAULT NULL COMMENT 'ERP订单号（引入来源，如 XSXO0000123）',
   erp_out_no    VARCHAR(32)  DEFAULT NULL COMMENT '回写ERP的出库单号（如 XSO123456）',
   customer_id   BIGINT UNSIGNED DEFAULT NULL COMMENT '客户ID（base_customer.id）',
@@ -416,7 +430,13 @@ CREATE TABLE doc_outbound (
   create_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   handler       VARCHAR(32)  DEFAULT NULL COMMENT '经手人（拣货完成人）',
   handle_time   DATETIME     DEFAULT NULL COMMENT '经手时间（拣货完成时间）',
+  updater       VARCHAR(32)  DEFAULT NULL COMMENT '修改人',
   update_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  auditor       BIGINT UNSIGNED DEFAULT NULL COMMENT '审核人（引擎PASS写入）',
+  audit_time    DATETIME     DEFAULT NULL COMMENT '审核时间',
+  reverse_flag  TINYINT      NOT NULL DEFAULT 0 COMMENT '红冲标志（0正常 1红冲负向单）(设计补充，Q4红冲)',
+  source_outbound_no VARCHAR(32) DEFAULT NULL COMMENT '红冲引用原单号 (设计补充，Q4红冲)',
+  source_outbound_id BIGINT UNSIGNED DEFAULT NULL COMMENT '红冲引用原单ID (设计补充，Q4红冲)',
   PRIMARY KEY (id),
   UNIQUE KEY uk_outbound_no (outbound_no),
   KEY idx_status (status),
@@ -460,25 +480,31 @@ CREATE TABLE doc_stock_move (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   move_no      VARCHAR(32)  NOT NULL COMMENT '移库单号（MD开头）',
   move_date    DATE         DEFAULT NULL COMMENT '移库日期',
-  status       VARCHAR(16)  NOT NULL DEFAULT '生效' COMMENT '单据状态（生效/制作中）',
+  status       TINYINT      NOT NULL DEFAULT 0 COMMENT '单据状态（0=制作中 3=生效，引擎 BillStatusEnum）',
   move_type    VARCHAR(32)  NOT NULL COMMENT '移库类型（托盘挪库/编码移库/批次移库/空托移库）',
-  sync_status  VARCHAR(16)  NOT NULL DEFAULT '未同步' COMMENT 'ERP同步状态（成功/未同步；ERP启用仓位管理，生效后须同步仓位变更）(设计补充，PRD FR-08)',
+  sync_status  TINYINT      NOT NULL DEFAULT 2 COMMENT 'ERP同步状态（1=已同步 2=未同步；ERP启用仓位管理，生效后须同步仓位变更）(设计补充，PRD FR-08)',
   erp_no       VARCHAR(32)  DEFAULT NULL COMMENT 'ERP调拨单号（DB开头，仓位变更回写载体）',
   batch_no     VARCHAR(64)  DEFAULT NULL COMMENT '批号（批次移库时）',
   from_warehouse_id BIGINT UNSIGNED DEFAULT NULL COMMENT '源仓库ID（base_warehouse.id）',
   from_loc_code VARCHAR(32)  DEFAULT NULL COMMENT '源仓位',
-  to_warehouse_id   BIGINT UNSIGNED DEFAULT NULL COMMENT '目标仓库ID（base_warehouse.id）',
+  to_warehouse_id   BIGINT UNSIGNED DEFAULT NULL COMMENT '目标仓库ID（base_warehouse.id，Q3：须与源仓库相同）',
   to_loc_code  VARCHAR(32)  NOT NULL COMMENT '目标仓位',
   remark       VARCHAR(255) DEFAULT NULL COMMENT '备注',
+  reverse_flag TINYINT      NOT NULL DEFAULT 0 COMMENT '红冲标志（0=正常 1=红冲反向单，Q4：源/目标仓位对调）',
+  source_move_no VARCHAR(32) DEFAULT NULL COMMENT '红冲引用的原移库单号（reverse_flag=1 时必填）',
+  source_move_id BIGINT UNSIGNED DEFAULT NULL COMMENT '红冲引用的原移库单ID（doc_stock_move.id）',
   creator      VARCHAR(32)  DEFAULT NULL COMMENT '创建人（PC/PDA均可发起）',
   create_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   updater      VARCHAR(32)  DEFAULT NULL COMMENT '修改人',
   update_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  auditor      BIGINT UNSIGNED DEFAULT NULL COMMENT '生效人（引擎PASS回写）',
+  audit_time   DATETIME     DEFAULT NULL COMMENT '生效时间（引擎PASS回写）',
   PRIMARY KEY (id),
   UNIQUE KEY uk_move_no (move_no),
   KEY idx_status (status),
-  KEY idx_move_type (move_type)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='移库单（生效后更新托盘与箱码仓位归属，库存批次总量不变，仓位变更同步ERP，数据出口A）';
+  KEY idx_move_type (move_type),
+  KEY idx_source_move (source_move_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='移库单（生效后更新托盘与箱码仓位归属，库存批次总量不变，仓位变更同步ERP，数据出口A；支持红冲，Q4；跨仓阻断，Q3）';
 
 -- 22. 移库单明细
 CREATE TABLE doc_stock_move_detail (
@@ -502,9 +528,9 @@ CREATE TABLE doc_stock_move_detail (
 CREATE TABLE doc_stock_count (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   count_no     VARCHAR(32)  NOT NULL COMMENT '盘存单号（CV开头）',
-  status       VARCHAR(16)  NOT NULL DEFAULT '生效' COMMENT '单据状态（生效/制作中）',
+  status       TINYINT      NOT NULL DEFAULT 0 COMMENT '单据状态（0=制作中 3=生效，引擎 BillStatusEnum）',
   count_date   DATE         DEFAULT NULL COMMENT '盘存日期',
-  work_mode    VARCHAR(16)  DEFAULT '条码' COMMENT '作业方式（条码/批次）',
+  work_mode    VARCHAR(16)  DEFAULT NULL COMMENT '作业方式（条码作业/批次作业）',
   warehouse_id BIGINT UNSIGNED DEFAULT NULL COMMENT '仓库ID（base_warehouse.id）',
   warehouse_name VARCHAR(64) DEFAULT NULL COMMENT '仓库名称（冗余）',
   loc_code     VARCHAR(32)  DEFAULT NULL COMMENT '盘存仓位',
@@ -512,15 +538,23 @@ CREATE TABLE doc_stock_count (
   vat_no       VARCHAR(32)  DEFAULT NULL COMMENT '缸号',
   real_pieces  INT          DEFAULT NULL COMMENT '实盘件数',
   real_weight  DECIMAL(18,3) DEFAULT NULL COMMENT '实盘重量（KG）',
+  sync_status  TINYINT      NOT NULL DEFAULT 2 COMMENT 'ERP同步状态（1=已同步 2=未同步；主管确认后触发数量变更回写）(设计补充，PRD Q2)',
+  erp_no       VARCHAR(32)  DEFAULT NULL COMMENT 'ERP调整单号（盘盈亏数量变更回写载体）(设计补充，PRD Q2)',
+  adjust_state TINYINT      DEFAULT NULL COMMENT '盘盈亏调整确认状态（1=待确认 2=已确认 3=已驳回；无盈亏为空）(设计补充，PRD Q2)',
+  adjust_confirm_by VARCHAR(32) DEFAULT NULL COMMENT '调整确认人（仓库主管）(设计补充，PRD Q2)',
+  adjust_confirm_time DATETIME DEFAULT NULL COMMENT '调整确认时间 (设计补充，PRD Q2)',
   remark       VARCHAR(255) DEFAULT NULL COMMENT '备注',
   creator      VARCHAR(32)  DEFAULT NULL COMMENT '创建人',
   create_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   updater      VARCHAR(32)  DEFAULT NULL COMMENT '修改人',
   update_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  auditor      BIGINT UNSIGNED DEFAULT NULL COMMENT '生效人（引擎PASS回写）',
+  audit_time   DATETIME     DEFAULT NULL COMMENT '生效时间（引擎PASS回写）',
   PRIMARY KEY (id),
   UNIQUE KEY uk_count_no (count_no),
-  KEY idx_warehouse (warehouse_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='盘存单（盘盈亏更新库存批次台账；是否回写ERP待定 PRD Q2）';
+  KEY idx_warehouse (warehouse_id),
+  KEY idx_adjust (adjust_state)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='盘存单（生效生成盘盈亏调整记录，主管确认后调整台账并回写ERP数量变更，Q2）';
 
 -- 24. 盘存单明细（盘前/实盘/盈亏三栏对照）
 CREATE TABLE doc_stock_count_detail (
@@ -686,7 +720,7 @@ CREATE TABLE inv_pallet (
 CREATE TABLE asrs_wh_task (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   task_no      VARCHAR(32)  NOT NULL COMMENT '仓储任务号（AT开头）',
-  status       VARCHAR(16)  NOT NULL DEFAULT '生效' COMMENT '单据状态（生效/制单中）',
+  status       TINYINT      NOT NULL DEFAULT 0 COMMENT '单据状态（0草稿 1制单中 2审核中 3通过 4驳回，引擎状态机）',
   task_date    DATE         DEFAULT NULL COMMENT '任务日期',
   task_type    VARCHAR(16)  NOT NULL COMMENT '任务类型（条码入库/条码出库/空托出库）',
   exec_status  VARCHAR(16)  NOT NULL DEFAULT '待执行' COMMENT '执行状态（待执行/执行中/已完成）',
@@ -700,7 +734,10 @@ CREATE TABLE asrs_wh_task (
   boxes        INT          DEFAULT NULL COMMENT '箱数',
   creator      VARCHAR(32)  DEFAULT NULL COMMENT '创建人',
   create_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  updater      VARCHAR(32)  DEFAULT NULL COMMENT '修改人',
   update_time  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  auditor      BIGINT UNSIGNED DEFAULT NULL COMMENT '审核人（引擎PASS写入）',
+  audit_time   DATETIME     DEFAULT NULL COMMENT '审核时间',
   PRIMARY KEY (id),
   UNIQUE KEY uk_task_no (task_no),
   KEY idx_exec (exec_status),
@@ -712,7 +749,7 @@ CREATE TABLE asrs_op_task (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   wcs_task_id   VARCHAR(32)  NOT NULL COMMENT 'WCS任务ID（设备调度系统任务号）',
   wh_task_id    BIGINT UNSIGNED DEFAULT NULL COMMENT '关联仓储任务ID（asrs_wh_task.id）',
-  status        VARCHAR(16)  NOT NULL DEFAULT '生效' COMMENT '单据状态（生效/制单中）',
+  status        TINYINT      NOT NULL DEFAULT 0 COMMENT '单据状态（0草稿 1制单中 2审核中 3通过 4驳回，引擎状态机）',
   pallet_no     VARCHAR(32)  DEFAULT NULL COMMENT '托盘号',
   from_loc      VARCHAR(32)  DEFAULT NULL COMMENT '源仓位',
   to_loc        VARCHAR(32)  DEFAULT NULL COMMENT '目标仓位（出口自动/拆托位/仓位号）',
@@ -723,8 +760,12 @@ CREATE TABLE asrs_op_task (
   asrs_time     DATETIME     DEFAULT NULL COMMENT '立库完成时间',
   exec_status   VARCHAR(16)  NOT NULL DEFAULT '执行中' COMMENT '执行状态（执行中/成功/失败）',
   remark        VARCHAR(255) DEFAULT NULL COMMENT '备注',
+  creator       VARCHAR(32)  DEFAULT NULL COMMENT '创建人',
   create_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  updater       VARCHAR(32)  DEFAULT NULL COMMENT '修改人',
   update_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  auditor       BIGINT UNSIGNED DEFAULT NULL COMMENT '审核人（引擎PASS写入）',
+  audit_time    DATETIME     DEFAULT NULL COMMENT '审核时间',
   PRIMARY KEY (id),
   UNIQUE KEY uk_wcs_task (wcs_task_id),
   KEY idx_wh_task (wh_task_id),
@@ -735,7 +776,7 @@ CREATE TABLE asrs_op_task (
 -- 32. 作业日志（立库作业-作业日志）
 CREATE TABLE asrs_op_log (
   id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  status       VARCHAR(16)  NOT NULL DEFAULT '生效' COMMENT '单据状态（生效）',
+  status       TINYINT      NOT NULL DEFAULT 0 COMMENT '单据状态（0草稿 1制单中 2审核中 3通过 4驳回，引擎状态机）',
   analysis     VARCHAR(16)  NOT NULL DEFAULT '待分析' COMMENT '分析状态（待分析/已分析）',
   wcs_time     DATETIME     DEFAULT NULL COMMENT 'WCS上报时间',
   proc_time    DATETIME     DEFAULT NULL COMMENT '处理完成时间',
@@ -940,6 +981,21 @@ CREATE TABLE sys_remind_setting (
   KEY idx_module (module_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='提醒设置（待办事项提醒规则）';
 
+-- 44. 自动编码设置（系统管理-编码规则，支撑取号）
+CREATE TABLE sys_auto_code_set (
+  id            BIGINT UNSIGNED NOT NULL COMMENT '主键ID（手工指定，非自增）',
+  function_name VARCHAR(64)  NOT NULL COMMENT '功能编码（=sys_func_module.module_code，如 WMS_CODE_COLLECT）',
+  is_auto_code  TINYINT      NOT NULL DEFAULT 1 COMMENT '是否自动取号（1=是 0=否）',
+  prefix        VARCHAR(32)  DEFAULT NULL COMMENT '编号前缀模板（支持占位符 [yyyy]/[yy]/[mm]/[dd]，如 MD[yyyy][mm][dd]）',
+  serial_len    INT          NOT NULL DEFAULT 4 COMMENT '流水号长度（按天重置，前缀+日期+流水，如 MD202610230001）',
+  creator       VARCHAR(32)  DEFAULT NULL COMMENT '创建人',
+  create_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  updater       VARCHAR(32)  DEFAULT NULL COMMENT '修改人',
+  update_time   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  PRIMARY KEY (id),
+  KEY idx_function (function_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='自动编码设置（按功能配置取号前缀与流水长度，M3 取号数据源）';
+
 -- =====================================================================
 -- 附：核心表关系说明（逻辑外键，不建物理外键约束）
 --   doc_inbound_detail.box_code        → inv_box.box_code          （上架回填）
@@ -952,3 +1008,27 @@ CREATE TABLE sys_remind_setting (
 --   sys_role_module.module_id          → sys_func_module.id        （角色权限）
 --   sys_user_role.(user_id, role_id)   → sys_user / sys_role       （用户角色）
 -- =====================================================================
+
+-- =====================================================================
+-- 附：引擎工作流配置表（基线表，xinao-crm 沿用）
+-- AbstractDynamicsFormService.isIgnoreOa 依赖：无配置行时提交直通生效（WMS 全模块语义）。
+-- WMS 不配置任何行；表必须存在，否则提交生效报错。
+-- =====================================================================
+CREATE TABLE wf_config (
+  id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  code         VARCHAR(32)  DEFAULT NULL COMMENT '配置编号',
+  pact_date    DATE         DEFAULT NULL COMMENT '配置日期',
+  status       TINYINT      NOT NULL DEFAULT 0 COMMENT '状态（引擎 BillStatusEnum）',
+  sql_main     TEXT         DEFAULT NULL COMMENT '主表查询SQL',
+  child_db_name VARCHAR(64) DEFAULT NULL COMMENT '子表库名',
+  sql_child    TEXT         DEFAULT NULL COMMENT '子表查询SQL',
+  function_name VARCHAR(64) DEFAULT NULL COMMENT '功能模块（FunctionEnum）',
+  wf_id        VARCHAR(64) DEFAULT NULL COMMENT '工作流ID（OA）',
+  auditor      BIGINT UNSIGNED DEFAULT NULL COMMENT '审核人',
+  audit_time   DATETIME    DEFAULT NULL COMMENT '审核时间',
+  enabled      TINYINT     NOT NULL DEFAULT 1 COMMENT '是否启用',
+  create_time  DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time  DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_function (function_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='引擎工作流配置（无行=提交直通生效；CRM OA 流程遗留结构，WMS 仅保表）';

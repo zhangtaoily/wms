@@ -18,13 +18,13 @@ var MODULES = {
     title: "出库通知", dateField: "单据日期",
     toolbar: ["新建", "查看", "删除", "导入发货通知", "导入领料申请", "导入采购退料", "查询选项", "查询", "高级查询"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "单据编号", k: "no", w: 125, cls: "bold c-blue" },
-      { t: "单据状态", k: "status", w: 60, cls: "ctr", cmap: { "生效": "c-green", "制单中": "c-red" } },
-      { t: "单据日期", k: "date", w: 80 }, { t: "ERP单号", k: "erpNo", w: 110 },
-      { t: "ERP日期", k: "erpDate", w: 80 }, { t: "销售员", k: "sales", w: 60 }, { t: "销售部门", k: "salesDept", w: 70 },
-      { t: "客户", k: "customer", w: 130 }, { t: "供应商", k: "supplier", w: 110 }, { t: "总件量", k: "qty", w: 90, cls: "num" },
-      { t: "创建人", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 90 },
-      { t: "修改人", k: "editor", w: 60 }, { t: "修改时间", k: "eTime", w: 90 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "单据编号", k: "no", w: 125, cls: "bold c-blue", sql: "doc_out_notice.notice_no" },
+      { t: "单据状态", k: "status", w: 60, cls: "ctr", cmap: { "生效": "c-green", "制单中": "c-red" }, sql: "doc_out_notice.status" },
+      { t: "单据日期", k: "date", w: 80, sql: "doc_out_notice.notice_date" }, { t: "ERP单号", k: "erpNo", w: 110, sql: "doc_out_notice.erp_no" },
+      { t: "ERP日期", k: "erpDate", w: 80, sql: "doc_out_notice.erp_date" }, { t: "销售员", k: "sales", w: 60, sql: "doc_out_notice.sales" }, { t: "销售部门", k: "salesDept", w: 70, sql: "doc_out_notice.sales_dept" },
+      { t: "客户", k: "customer", w: 130, sql: "doc_out_notice.customer_name" }, { t: "供应商", k: "supplier", w: 110, sql: "doc_out_notice.supplier_name" }, { t: "总件量", k: "qty", w: 90, cls: "num", sql: "doc_out_notice.qty" },
+      { t: "创建人", k: "creator", w: 60, sql: "doc_out_notice.creator" }, { t: "创建时间", k: "cTime", w: 90, sql: "doc_out_notice.create_time" },
+      { t: "修改人", k: "editor", w: 60, sql: "doc_out_notice.updater" }, { t: "修改时间", k: "eTime", w: 90, sql: "doc_out_notice.update_time" }
     ],
     gen: D.outNotice,
     edit: {
@@ -54,15 +54,15 @@ var MODULES = {
     title: "出库单", dateField: "出库日期",
     toolbar: ["新增", "编辑", "查看", "删除", "提交", "同步ERP", "查询选项", "查询", "高级查询", "刷新", "打印", "导出"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "出库单号", k: "no", w: 130, cls: "bold c-blue" },
-      { t: "状态", k: "status", w: 55, cls: "ctr", cmap: { "生效": "c-green", "制作中": "c-red" } },
-      { t: "ERP订单单号", k: "erpOrder", w: 110 }, { t: "客户", k: "customer", w: 120 }, { t: "销售员", k: "sales", w: 60 },
-      { t: "同步状态", k: "sync", w: 60, cls: "ctr", cmap: { "成功": "c-green", "未同步": "c-red" } },
-      { t: "ERP出库单号", k: "erpOutNo", w: 110 }, { t: "出库日期", k: "date", w: 80 }, { t: "仓库", k: "wh", w: 80 },
-      { t: "出库类型", k: "outType", w: 90, cls: "ctr" }, { t: "作业方式", k: "workMode", w: 70, cls: "ctr" },
-      { t: "库存批号", k: "batch", w: 125 }, { t: "缸号", k: "vat", w: 105 }, { t: "标重", k: "weight", w: 85, cls: "num" },
-      { t: "箱数", k: "boxes", w: 50, cls: "num" }, { t: "创建人", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 88 },
-      { t: "经办人", k: "handler", w: 60 }, { t: "经办时间", k: "hTime", w: 88 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "出库单号", k: "no", w: 130, cls: "bold c-blue", sql: "doc_outbound.outbound_no" },
+      { t: "状态", k: "status", w: 55, cls: "ctr", cmap: { "生效": "c-green", "制作中": "c-red" }, sql: "doc_outbound.status" },
+      { t: "ERP订单单号", k: "erpOrder", w: 110, sql: "doc_outbound.erp_order_no" }, { t: "客户", k: "customer", w: 120, sql: "doc_outbound.customer_name" }, { t: "销售员", k: "sales", w: 60, sql: "doc_outbound.sales" },
+      { t: "同步状态", k: "sync", w: 60, cls: "ctr", cmap: { "成功": "c-green", "未同步": "c-red" }, sql: "doc_outbound.sync_status" },
+      { t: "ERP出库单号", k: "erpOutNo", w: 110, sql: "doc_outbound.erp_out_no" }, { t: "出库日期", k: "date", w: 80, sql: "doc_outbound.outbound_date" }, { t: "仓库", k: "wh", w: 80, sql: "doc_outbound.warehouse_name" },
+      { t: "出库类型", k: "outType", w: 90, cls: "ctr", sql: "doc_outbound.outbound_type" }, { t: "作业方式", k: "workMode", w: 70, cls: "ctr", sql: "doc_outbound.work_mode" },
+      { t: "库存批号", k: "batch", w: 125, sql: "doc_outbound.batch_no" }, { t: "缸号", k: "vat", w: 105, sql: "doc_outbound.vat_no" }, { t: "标重", k: "weight", w: 85, cls: "num", sql: "doc_outbound.weight" },
+      { t: "箱数", k: "boxes", w: 50, cls: "num", sql: "doc_outbound.boxes" }, { t: "创建人", k: "creator", w: 60, sql: "doc_outbound.creator" }, { t: "创建时间", k: "cTime", w: 88, sql: "doc_outbound.create_time" },
+      { t: "经办人", k: "handler", w: 60, sql: "doc_outbound.handler" }, { t: "经办时间", k: "hTime", w: 88, sql: "doc_outbound.handle_time" }
     ],
     gen: D.outbound,
     edit: {
@@ -108,10 +108,10 @@ var MODULES = {
     title: "收货清单", dateField: "出库日期",
     toolbar: ["查看", "刷新", "查询选项", "查询", "高级查询"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "收货单号", k: "no", w: 130, cls: "bold c-blue" },
-      { t: "出库日期", k: "outDate", w: 85 }, { t: "供应商", k: "supplier", w: 120 }, { t: "供应商编号", k: "supplierCode", w: 90 },
-      { t: "出库单号", k: "outNo", w: 120 }, { t: "运输状态", k: "tranStatus", w: 70, cls: "ctr", cmap: { "在途": "c-blue", "已到货": "c-green", "已收货": "c-green" } },
-      { t: "创建时间", k: "cTime", w: 88 }, { t: "修改时间", k: "eTime", w: 88 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "收货单号", k: "no", w: 130, cls: "bold c-blue", sql: "doc_receiving.receive_no" },
+      { t: "出库日期", k: "outDate", w: 85, sql: "doc_receiving.out_date" }, { t: "供应商", k: "supplier", w: 120, sql: "doc_receiving.supplier_name" }, { t: "供应商编号", k: "supplierCode", w: 90, sql: "doc_receiving.supplier_code" },
+      { t: "出库单号", k: "outNo", w: 120, sql: "doc_receiving.out_no" }, { t: "运输状态", k: "tranStatus", w: 70, cls: "ctr", cmap: { "在途": "c-blue", "已到货": "c-green", "已收货": "c-green" }, sql: "doc_receiving.tran_status" },
+      { t: "创建时间", k: "cTime", w: 88, sql: "doc_receiving.create_time" }, { t: "修改时间", k: "eTime", w: 88, sql: "doc_receiving.update_time" }
     ],
     gen: D.receiving,
     viewOnly: true,
@@ -132,11 +132,11 @@ var MODULES = {
     title: "组托单", dateField: "组托日期",
     toolbar: ["新建", "编辑", "查看", "删除", "查询选项", "查询", "高级查询", "导出"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "组托单号", k: "no", w: 125, cls: "bold c-blue" },
-      { t: "状态", k: "status", w: 55, cls: "ctr", cmap: { "生效": "c-green" } },
-      { t: "组托日期", k: "date", w: 135 }, { t: "组托类型", k: "pType", w: 95, cls: "ctr" },
-      { t: "托号", k: "pallet", w: 85 }, { t: "箱号", k: "box", w: 120 }, { t: "库存批号", k: "batch", w: 125 },
-      { t: "缸号", k: "vat", w: 105 }, { t: "备注", k: "remark", w: 80 }, { t: "创建人", k: "creator", w: 60 }, { t: "最后修改人", k: "editor", w: 75 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "组托单号", k: "no", w: 125, cls: "bold c-blue", sql: "doc_pallet_order.pallet_order_no" },
+      { t: "状态", k: "status", w: 55, cls: "ctr", cmap: { "生效": "c-green" }, sql: "doc_pallet_order.status" },
+      { t: "组托日期", k: "date", w: 135, sql: "doc_pallet_order.order_date" }, { t: "组托类型", k: "pType", w: 95, cls: "ctr", sql: "doc_pallet_order.pallet_type" },
+      { t: "托号", k: "pallet", w: 85, sql: "doc_pallet_order_pallet.pallet_no" }, { t: "箱号", k: "box", w: 120, sql: "doc_pallet_order_detail.box_code" }, { t: "库存批号", k: "batch", w: 125, sql: "doc_pallet_order.batch_no" },
+      { t: "缸号", k: "vat", w: 105, sql: "doc_pallet_order.vat_no" }, { t: "备注", k: "remark", w: 80, sql: "doc_pallet_order.remark" }, { t: "创建人", k: "creator", w: 60, sql: "doc_pallet_order.creator" }, { t: "最后修改人", k: "editor", w: 75, sql: "doc_pallet_order.updater" }
     ],
     gen: D.palletOrder,
     edit: {
@@ -171,12 +171,12 @@ var MODULES = {
     title: "码单收录", dateField: "日期",
     toolbar: ["新建", "编辑", "查看", "删除", "查询选项", "查询", "高级查询"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "单据编号", k: "no", w: 125, cls: "bold c-blue" },
-      { t: "状态", k: "status", w: 55, cls: "ctr", cmap: { "生效": "c-green", "制单中": "c-red" } },
-      { t: "日期", k: "date", w: 80 }, { t: "ERP订单号", k: "erpNo", w: 110 }, { t: "业务类型", k: "bizType", w: 75, cls: "ctr" },
-      { t: "批号", k: "batch", w: 125 }, { t: "数量", k: "qty", w: 85, cls: "num" },
-      { t: "创建者", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 88 },
-      { t: "修改人", k: "editor", w: 60 }, { t: "修改时间", k: "eTime", w: 88 }, { t: "备注", k: "remark", w: 80 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "单据编号", k: "no", w: 125, cls: "bold c-blue", sql: "doc_code_collect.code_no" },
+      { t: "状态", k: "status", w: 55, cls: "ctr", cmap: { "生效": "c-green", "制单中": "c-red" }, sql: "doc_code_collect.status" },
+      { t: "日期", k: "date", w: 80, sql: "doc_code_collect.collect_date" }, { t: "ERP订单号", k: "erpNo", w: 110, sql: "doc_code_collect.erp_no" }, { t: "业务类型", k: "bizType", w: 75, cls: "ctr", sql: "doc_code_collect.biz_type" },
+      { t: "批号", k: "batch", w: 125, sql: "doc_code_collect.batch_no" }, { t: "数量", k: "qty", w: 85, cls: "num", sql: "doc_code_collect.qty" },
+      { t: "创建者", k: "creator", w: 60, sql: "doc_code_collect.creator" }, { t: "创建时间", k: "cTime", w: 88, sql: "doc_code_collect.create_time" },
+      { t: "修改人", k: "editor", w: 60, sql: "doc_code_collect.updater" }, { t: "修改时间", k: "eTime", w: 88, sql: "doc_code_collect.update_time" }, { t: "备注", k: "remark", w: 80, sql: "doc_code_collect.remark" }
     ],
     gen: D.codeCollect,
     edit: {
@@ -210,14 +210,14 @@ var MODULES = {
     title: "入库单", dateField: "入库日期",
     toolbar: ["新增", "编辑", "查看", "删除", "提交", "同步ERP", "查询", "高级查询", "刷新", "打印", "导出", "导入模板", "日志查询", "关闭"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "入库单号", k: "no", w: 130, cls: "bold c-blue" },
-      { t: "入库日期", k: "date", w: 80 }, { t: "生效状态", k: "status", w: 60, cls: "ctr", cmap: { "生效": "c-green", "制作中": "c-red" } },
-      { t: "同步状态", k: "sync", w: 60, cls: "ctr", cmap: { "成功": "c-green", "未同步": "c-red" } },
-      { t: "ERP单号", k: "erpNo", w: 105 }, { t: "单据类型", k: "docType", w: 100, cls: "ctr" }, { t: "ERP入库单", k: "erpInNo", w: 100 },
-      { t: "仓库", k: "wh", w: 80 }, { t: "入库类型", k: "inType", w: 75, cls: "ctr" }, { t: "作业方式", k: "workMode", w: 70, cls: "ctr" },
-      { t: "库存批次", k: "batch", w: 125 }, { t: "缸号", k: "vat", w: 105 }, { t: "标重", k: "weight", w: 85, cls: "num" },
-      { t: "箱数", k: "boxes", w: 45, cls: "num" }, { t: "创建人", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 88 },
-      { t: "修改人", k: "editor", w: 60 }, { t: "修改时间", k: "eTime", w: 88 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "入库单号", k: "no", w: 130, cls: "bold c-blue", sql: "doc_inbound.inbound_no" },
+      { t: "入库日期", k: "date", w: 80, sql: "doc_inbound.inbound_date" }, { t: "生效状态", k: "status", w: 60, cls: "ctr", cmap: { "生效": "c-green", "制作中": "c-red" }, sql: "doc_inbound.status" },
+      { t: "同步状态", k: "sync", w: 60, cls: "ctr", cmap: { "成功": "c-green", "未同步": "c-red" }, sql: "doc_inbound.sync_status" },
+      { t: "ERP单号", k: "erpNo", w: 105, sql: "doc_inbound.erp_doc_no" }, { t: "单据类型", k: "docType", w: 100, cls: "ctr", sql: "doc_inbound.erp_doc_type" }, { t: "ERP入库单", k: "erpInNo", w: 100, sql: "doc_inbound.erp_in_no" },
+      { t: "仓库", k: "wh", w: 80, sql: "doc_inbound.warehouse_name" }, { t: "入库类型", k: "inType", w: 75, cls: "ctr", sql: "doc_inbound.inbound_type" }, { t: "作业方式", k: "workMode", w: 70, cls: "ctr", sql: "doc_inbound.work_mode" },
+      { t: "库存批次", k: "batch", w: 125, sql: "doc_inbound.batch_no" }, { t: "缸号", k: "vat", w: 105, sql: "doc_inbound.vat_no" }, { t: "标重", k: "weight", w: 85, cls: "num", sql: "doc_inbound.weight" },
+      { t: "箱数", k: "boxes", w: 45, cls: "num", sql: "doc_inbound.boxes" }, { t: "创建人", k: "creator", w: 60, sql: "doc_inbound.creator" }, { t: "创建时间", k: "cTime", w: 88, sql: "doc_inbound.create_time" },
+      { t: "修改人", k: "editor", w: 60, sql: "doc_inbound.updater" }, { t: "修改时间", k: "eTime", w: 88, sql: "doc_inbound.update_time" }
     ],
     gen: D.inbound,
     edit: {
@@ -265,13 +265,13 @@ var MODULES = {
     title: "仓储任务", dateField: "任务日期",
     toolbar: ["新建", "编辑", "查看", "删除", "查询选项", "查询", "高级查询", "导出"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "任务编号", k: "no", w: 125, cls: "bold c-blue" },
-      { t: "单据状态", k: "status", w: 60, cls: "ctr", cmap: { "生效": "c-green" } },
-      { t: "任务日期", k: "date", w: 80 }, { t: "任务类型", k: "tType", w: 75, cls: "ctr" },
-      { t: "执行状态", k: "execStatus", w: 60, cls: "ctr", cmap: { "待执行": "c-red", "执行中": "c-blue", "已完成": "c-green" } },
-      { t: "库存批号", k: "batch", w: 125 }, { t: "料号", k: "material", w: 100 }, { t: "任务批号", k: "taskBatch", w: 125 },
-      { t: "出库类型", k: "outType", w: 85, cls: "ctr" }, { t: "ERP单号", k: "erpNo", w: 105 }, { t: "ERP单据类型", k: "erpType", w: 105, cls: "ctr" },
-      { t: "标箱", k: "stdBox", w: 45, cls: "num" }, { t: "箱数", k: "boxes", w: 45, cls: "num" }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "任务编号", k: "no", w: 125, cls: "bold c-blue", sql: "asrs_wh_task.task_no" },
+      { t: "单据状态", k: "status", w: 60, cls: "ctr", cmap: { "生效": "c-green" }, sql: "asrs_wh_task.status" },
+      { t: "任务日期", k: "date", w: 80, sql: "asrs_wh_task.task_date" }, { t: "任务类型", k: "tType", w: 75, cls: "ctr", sql: "asrs_wh_task.task_type" },
+      { t: "执行状态", k: "execStatus", w: 60, cls: "ctr", cmap: { "待执行": "c-red", "执行中": "c-blue", "已完成": "c-green" }, sql: "asrs_wh_task.exec_status" },
+      { t: "库存批号", k: "batch", w: 125, sql: "asrs_wh_task.batch_no" }, { t: "料号", k: "material", w: 100, sql: "asrs_wh_task.material_code" }, { t: "任务批号", k: "taskBatch", w: 125, sql: "asrs_wh_task.task_batch_no" },
+      { t: "出库类型", k: "outType", w: 85, cls: "ctr", sql: "asrs_wh_task.outbound_type" }, { t: "ERP单号", k: "erpNo", w: 105, sql: "asrs_wh_task.erp_doc_no" }, { t: "ERP单据类型", k: "erpType", w: 105, cls: "ctr", sql: "asrs_wh_task.erp_doc_type" },
+      { t: "标箱", k: "stdBox", w: 45, cls: "num", sql: "asrs_wh_task.std_box" }, { t: "箱数", k: "boxes", w: 45, cls: "num", sql: "asrs_wh_task.boxes" }
     ],
     gen: D.whTask,
     edit: {
@@ -296,13 +296,13 @@ var MODULES = {
     title: "作业任务", dateField: "任务时间",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "重试", "查询选项", "查询", "高级查询", "导出", "打印"],
     columns: [
-      { t: "ID", k: "id", w: 50, cls: "ctr" }, { t: "单号", k: "docId", w: 60, cls: "ctr" },
-      { t: "单据状态", k: "status", w: 60, cls: "ctr", cmap: { "生效": "c-green" } },
-      { t: "托盘号", k: "pallet", w: 85 }, { t: "原始库位", k: "fromLoc", w: 80 }, { t: "目标库位", k: "toLoc", w: 80 },
-      { t: "任务类型", k: "tType", w: 75, cls: "ctr" }, { t: "作业类型", k: "opType", w: 55, cls: "ctr" },
-      { t: "出库口", k: "port", w: 90 }, { t: "任务时间", k: "tTime", w: 135 }, { t: "立库接收时间", k: "asrsTime", w: 135 },
-      { t: "执行状态", k: "execStatus", w: 60, cls: "ctr", cmap: { "执行中": "c-blue", "成功": "c-green", "失败": "c-red" } },
-      { t: "备注", k: "remark", w: 80 }
+      { t: "ID", k: "id", w: 50, cls: "ctr", sql: "asrs_op_task.id" }, { t: "单号", k: "docId", w: 60, cls: "ctr", sql: "asrs_op_task.wcs_task_id" },
+      { t: "单据状态", k: "status", w: 60, cls: "ctr", cmap: { "生效": "c-green" }, sql: "asrs_op_task.status" },
+      { t: "托盘号", k: "pallet", w: 85, sql: "asrs_op_task.pallet_no" }, { t: "原始库位", k: "fromLoc", w: 80, sql: "asrs_op_task.from_loc" }, { t: "目标库位", k: "toLoc", w: 80, sql: "asrs_op_task.to_loc" },
+      { t: "任务类型", k: "tType", w: 75, cls: "ctr", sql: "asrs_op_task.task_type" }, { t: "作业类型", k: "opType", w: 55, cls: "ctr", sql: "asrs_op_task.op_type" },
+      { t: "出库口", k: "port", w: 90, sql: "asrs_op_task.port" }, { t: "任务时间", k: "tTime", w: 135, sql: "asrs_op_task.task_time" }, { t: "立库接收时间", k: "asrsTime", w: 135, sql: "asrs_op_task.asrs_time" },
+      { t: "执行状态", k: "execStatus", w: 60, cls: "ctr", cmap: { "执行中": "c-blue", "成功": "c-green", "失败": "c-red" }, sql: "asrs_op_task.exec_status" },
+      { t: "备注", k: "remark", w: 80, sql: "asrs_op_task.remark" }
     ],
     gen: D.opTask,
     edit: {
@@ -322,13 +322,13 @@ var MODULES = {
     title: "作业日志", dateField: "单据日期",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "查询选项", "查询", "高级查询"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "生效状态", k: "status", w: 60, cls: "ctr", cmap: { "生效": "c-green" } },
-      { t: "分析状态", k: "analysis", w: 60, cls: "ctr", cmap: { "待分析": "c-red", "已分析": "c-green" } },
-      { t: "WCS时间", k: "wcsTime", w: 140 }, { t: "处理时间", k: "procTime", w: 140 },
-      { t: "作业类型", k: "opType", w: 55, cls: "ctr" }, { t: "作业结果", k: "result", w: 55, cls: "ctr", cmap: { "正常": "c-green", "异常": "c-red" } },
-      { t: "原始库位号", k: "fromLoc", w: 85 }, { t: "原始库位名称", k: "fromName", w: 90 },
-      { t: "目标库位号", k: "toLoc", w: 85 }, { t: "目标库位名称", k: "toName", w: 90 },
-      { t: "托盘号", k: "pallet", w: 90 }, { t: "单据日期", k: "docDate", w: 80 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "生效状态", k: "status", w: 60, cls: "ctr", cmap: { "生效": "c-green" }, sql: "asrs_op_log.status" },
+      { t: "分析状态", k: "analysis", w: 60, cls: "ctr", cmap: { "待分析": "c-red", "已分析": "c-green" }, sql: "asrs_op_log.analysis" },
+      { t: "WCS时间", k: "wcsTime", w: 140, sql: "asrs_op_log.wcs_time" }, { t: "处理时间", k: "procTime", w: 140, sql: "asrs_op_log.proc_time" },
+      { t: "作业类型", k: "opType", w: 55, cls: "ctr", sql: "asrs_op_log.op_type" }, { t: "作业结果", k: "result", w: 55, cls: "ctr", cmap: { "正常": "c-green", "异常": "c-red" }, sql: "asrs_op_log.result" },
+      { t: "原始库位号", k: "fromLoc", w: 85, sql: "asrs_op_log.from_loc" }, { t: "原始库位名称", k: "fromName", w: 90, sql: "asrs_op_log.from_name" },
+      { t: "目标库位号", k: "toLoc", w: 85, sql: "asrs_op_log.to_loc" }, { t: "目标库位名称", k: "toName", w: 90, sql: "asrs_op_log.to_name" },
+      { t: "托盘号", k: "pallet", w: 90, sql: "asrs_op_log.pallet_no" }, { t: "单据日期", k: "docDate", w: 80, sql: "asrs_op_log.doc_date" }
     ],
     gen: D.opLog,
     edit: {
@@ -348,14 +348,14 @@ var MODULES = {
     title: "盘存单", dateField: "盘存日期",
     toolbar: ["新增", "编辑", "查看", "删除", "查询选项", "查询", "高级查询", "刷新", "打印", "导出"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "盘存单号", k: "no", w: 125, cls: "bold c-blue" },
-      { t: "状态", k: "status", w: 55, cls: "ctr", cmap: { "生效": "c-green" } },
-      { t: "盘存日期", k: "date", w: 80 }, { t: "作业方式", k: "workMode", w: 60, cls: "ctr" }, { t: "仓库名", k: "wh", w: 75 },
-      { t: "仓位", k: "loc", w: 70 }, { t: "批号", k: "batch", w: 125 }, { t: "缸号", k: "vat", w: 105 },
-      { t: "实盘件数", k: "realPieces", w: 60, cls: "num" }, { t: "实盘标重", k: "realWeight", w: 75, cls: "num" },
-      { t: "箱条码", k: "boxBarcode", w: 120 }, { t: "箱实件数", k: "boxPieces", w: 60, cls: "num" }, { t: "箱实重量", k: "boxWeight", w: 70, cls: "num" },
-      { t: "备注", k: "remark", w: 70 }, { t: "创建人", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 88 },
-      { t: "编辑人", k: "editor", w: 60 }, { t: "编辑时间", k: "eTime", w: 88 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "盘存单号", k: "no", w: 125, cls: "bold c-blue", sql: "doc_stock_count.count_no" },
+      { t: "状态", k: "status", w: 55, cls: "ctr", cmap: { "生效": "c-green" }, sql: "doc_stock_count.status" },
+      { t: "盘存日期", k: "date", w: 80, sql: "doc_stock_count.count_date" }, { t: "作业方式", k: "workMode", w: 60, cls: "ctr", sql: "doc_stock_count.work_mode" }, { t: "仓库名", k: "wh", w: 75, sql: "doc_stock_count.warehouse_name" },
+      { t: "仓位", k: "loc", w: 70, sql: "doc_stock_count.loc_code" }, { t: "批号", k: "batch", w: 125, sql: "doc_stock_count.batch_no" }, { t: "缸号", k: "vat", w: 105, sql: "doc_stock_count.vat_no" },
+      { t: "实盘件数", k: "realPieces", w: 60, cls: "num", sql: "doc_stock_count.real_pieces" }, { t: "实盘标重", k: "realWeight", w: 75, cls: "num", sql: "doc_stock_count.real_weight" },
+      { t: "箱条码", k: "boxBarcode", w: 120, sql: "doc_stock_count_box.box_code" }, { t: "箱实件数", k: "boxPieces", w: 60, cls: "num" }, { t: "箱实重量", k: "boxWeight", w: 70, cls: "num" },
+      { t: "备注", k: "remark", w: 70, sql: "doc_stock_count.remark" }, { t: "创建人", k: "creator", w: 60, sql: "doc_stock_count.creator" }, { t: "创建时间", k: "cTime", w: 88, sql: "doc_stock_count.create_time" },
+      { t: "编辑人", k: "editor", w: 60, sql: "doc_stock_count.updater" }, { t: "编辑时间", k: "eTime", w: 88, sql: "doc_stock_count.update_time" }
     ],
     gen: D.stockCount,
     edit: {
@@ -394,14 +394,14 @@ var MODULES = {
     title: "移库单", dateField: "单据日期",
     toolbar: ["新增", "编辑", "查看", "删除", "查询选项", "查询", "高级查询", "导入", "导出", "打印"],
     columns: [
-      { t: "行号", k: "seq", w: 36, cls: "ctr" }, { t: "移库单号", k: "no", w: 125, cls: "bold c-blue" },
-      { t: "单据日期", k: "date", w: 80 }, { t: "状态", k: "status", w: 55, cls: "ctr", cmap: { "生效": "c-green" } },
-      { t: "ERP单号", k: "erpNo", w: 100 }, { t: "移库类型", k: "moveType", w: 70, cls: "ctr" },
-      { t: "批号", k: "batch", w: 125 }, { t: "箱号", k: "box", w: 120 },
-      { t: "调入仓库", k: "toWh", w: 80 }, { t: "调入仓位", k: "toLoc", w: 80 },
-      { t: "调出仓库", k: "fromWh", w: 80 }, { t: "调出仓位", k: "fromLoc", w: 80 },
-      { t: "创建者", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 88 },
-      { t: "修改人", k: "editor", w: 60 }, { t: "修改时间", k: "eTime", w: 88 }, { t: "备注", k: "remark", w: 70 }
+      { t: "行号", k: "seq", w: 36, cls: "ctr" }, { t: "移库单号", k: "no", w: 125, cls: "bold c-blue", sql: "doc_stock_move.move_no" },
+      { t: "单据日期", k: "date", w: 80, sql: "doc_stock_move.move_date" }, { t: "状态", k: "status", w: 55, cls: "ctr", cmap: { "生效": "c-green" }, sql: "doc_stock_move.status" },
+      { t: "ERP单号", k: "erpNo", w: 100, sql: "doc_stock_move.erp_no" }, { t: "移库类型", k: "moveType", w: 70, cls: "ctr", sql: "doc_stock_move.move_type" },
+      { t: "批号", k: "batch", w: 125, sql: "doc_stock_move.batch_no" }, { t: "箱号", k: "box", w: 120, sql: "doc_stock_move_detail.box_code" },
+      { t: "调入仓库", k: "toWh", w: 80, sql: "doc_stock_move_detail.to_warehouse_name" }, { t: "调入仓位", k: "toLoc", w: 80, sql: "doc_stock_move.to_loc_code" },
+      { t: "调出仓库", k: "fromWh", w: 80 }, { t: "调出仓位", k: "fromLoc", w: 80, sql: "doc_stock_move.from_loc_code" },
+      { t: "创建者", k: "creator", w: 60, sql: "doc_stock_move.creator" }, { t: "创建时间", k: "cTime", w: 88, sql: "doc_stock_move.create_time" },
+      { t: "修改人", k: "editor", w: 60, sql: "doc_stock_move.updater" }, { t: "修改时间", k: "eTime", w: 88, sql: "doc_stock_move.update_time" }, { t: "备注", k: "remark", w: 70, sql: "doc_stock_move.remark" }
     ],
     gen: D.stockMove,
     edit: {
@@ -427,9 +427,9 @@ var MODULES = {
     title: "业务批次", dateField: "批次日期",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "批次初始化", "ERP库存盘存", "清空库存", "查询选项", "查询", "高级查询"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "批次编号", k: "no", w: 140, cls: "bold c-blue" },
-      { t: "物料编码", k: "material", w: 110 }, { t: "物料名称", k: "materialName", w: 150 },
-      { t: "纱支", k: "yarn", w: 70 }, { t: "批次日期", k: "date", w: 130 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "批次编号", k: "no", w: 140, cls: "bold c-blue", sql: "base_biz_batch.biz_batch_no" },
+      { t: "物料编码", k: "material", w: 110, sql: "base_biz_batch.material_code" }, { t: "物料名称", k: "materialName", w: 150, sql: "base_biz_batch.material_name" },
+      { t: "纱支", k: "yarn", w: 70, sql: "base_biz_batch.yarn" }, { t: "批次日期", k: "date", w: 130, sql: "base_biz_batch.biz_date" }
     ],
     gen: D.bizBatch,
     edit: {
@@ -445,11 +445,11 @@ var MODULES = {
     title: "库存批次", dateField: "批次日期",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "条码对账", "查询选项", "查询", "高级查询"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "库存批号", k: "no", w: 135, cls: "bold c-blue" },
-      { t: "业务批号", k: "bizBatch", w: 125 }, { t: "缸号", k: "vat", w: 105 }, { t: "原料成分", k: "comp", w: 125 },
-      { t: "总箱数", k: "totalBoxes", w: 55, cls: "num" }, { t: "总件数", k: "totalPieces", w: 55, cls: "num" },
-      { t: "总库存量", k: "totalQty", w: 80, cls: "num" }, { t: "存货仓库", k: "wh", w: 80 }, { t: "存货仓位", k: "loc", w: 80 },
-      { t: "仓位件数", k: "locPieces", w: 60, cls: "num" }, { t: "仓位库存", k: "locQty", w: 80, cls: "num" },
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "库存批号", k: "no", w: 135, cls: "bold c-blue", sql: "inv_batch.inv_batch_no" },
+      { t: "业务批号", k: "bizBatch", w: 125, sql: "inv_batch.biz_batch_no" }, { t: "缸号", k: "vat", w: 105, sql: "inv_batch.vat_no" }, { t: "原料成分", k: "comp", w: 125, sql: "inv_batch.comp" },
+      { t: "总箱数", k: "totalBoxes", w: 55, cls: "num", sql: "inv_batch.total_boxes" }, { t: "总件数", k: "totalPieces", w: 55, cls: "num", sql: "inv_batch.total_pieces" },
+      { t: "总库存量", k: "totalQty", w: 80, cls: "num", sql: "inv_batch.total_qty" }, { t: "存货仓库", k: "wh", w: 80, sql: "inv_batch_stock.warehouse_name" }, { t: "存货仓位", k: "loc", w: 80, sql: "inv_batch_stock.loc_code" },
+      { t: "仓位件数", k: "locPieces", w: 60, cls: "num", sql: "inv_batch_stock.pieces" }, { t: "仓位库存", k: "locQty", w: 80, cls: "num", sql: "inv_batch_stock.std_weight" },
       { t: "箱装件数", k: "boxPieces", w: 60, cls: "num" }, { t: "箱装库存", k: "boxQty", w: 80, cls: "num" },
       { t: "条码件数", k: "barPieces", w: 60, cls: "num" }, { t: "条码数量", k: "barQty", w: 80, cls: "num" }
     ],
@@ -467,17 +467,17 @@ var MODULES = {
     title: "箱码信息", dateField: "入库时间",
     toolbar: ["刷新", "查看", "编辑", "删除", "批量打印", "箱码处理", "回单联解绑", "打印", "查询选项", "查询", "高级查询"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "箱码编号", k: "code", w: 130, cls: "bold c-blue" },
-      { t: "批号", k: "batch", w: 125 }, { t: "缸号", k: "vat", w: 105 },
-      { t: "箱子状态", k: "status", w: 60, cls: "ctr", cmap: { "待入": "c-red", "在库": "c-green", "已出库": "c-gray" } },
-      { t: "所在仓库", k: "wh", w: 80 }, { t: "所在库位", k: "loc", w: 80 }, { t: "所在托盘号", k: "pallet", w: 90 },
-      { t: "入库时间", k: "inTime", w: 88 }, { t: "出库时间", k: "outTime", w: 88 },
-      { t: "筒数", k: "tubes", w: 40, cls: "num" }, { t: "标重", k: "stdWeight", w: 70, cls: "num" },
-      { t: "单筒重量", k: "tubeWeight", w: 65, cls: "num" }, { t: "毛重", k: "grossWeight", w: 70, cls: "num" },
-      { t: "净重", k: "netWeight", w: 70, cls: "num" }, { t: "待入重量", k: "waitWeight", w: 70, cls: "num" },
-      { t: "箱子总重", k: "boxTotal", w: 65, cls: "num" }, { t: "单件管理量", k: "unitQty", w: 65, cls: "num" },
-      { t: "实际回潮", k: "realMR", w: 60, cls: "num" }, { t: "公定回潮", k: "stdMR", w: 60, cls: "num" },
-      { t: "质检组", k: "qcGroup", w: 65 }, { t: "检测时间", k: "qcTime", w: 88 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "箱码编号", k: "code", w: 130, cls: "bold c-blue", sql: "inv_box.box_code" },
+      { t: "批号", k: "batch", w: 125, sql: "inv_box.batch_no" }, { t: "缸号", k: "vat", w: 105, sql: "inv_box.vat_no" },
+      { t: "箱子状态", k: "status", w: 60, cls: "ctr", cmap: { "待入": "c-red", "在库": "c-green", "已出库": "c-gray" }, sql: "inv_box.status" },
+      { t: "所在仓库", k: "wh", w: 80, sql: "inv_box.warehouse_name" }, { t: "所在库位", k: "loc", w: 80, sql: "inv_box.loc_code" }, { t: "所在托盘号", k: "pallet", w: 90, sql: "inv_box.pallet_no" },
+      { t: "入库时间", k: "inTime", w: 88, sql: "inv_box.in_time" }, { t: "出库时间", k: "outTime", w: 88, sql: "inv_box.out_time" },
+      { t: "筒数", k: "tubes", w: 40, cls: "num", sql: "inv_box.tubes" }, { t: "标重", k: "stdWeight", w: 70, cls: "num", sql: "inv_box.std_weight" },
+      { t: "单筒重量", k: "tubeWeight", w: 65, cls: "num", sql: "inv_box.tube_weight" }, { t: "毛重", k: "grossWeight", w: 70, cls: "num", sql: "inv_box.gross_weight" },
+      { t: "净重", k: "netWeight", w: 70, cls: "num", sql: "inv_box.net_weight" }, { t: "待入重量", k: "waitWeight", w: 70, cls: "num", sql: "inv_box.wait_weight" },
+      { t: "箱子总重", k: "boxTotal", w: 65, cls: "num", sql: "inv_box.box_total" }, { t: "单件管理量", k: "unitQty", w: 65, cls: "num", sql: "inv_box.unit_qty" },
+      { t: "实际回潮", k: "realMR", w: 60, cls: "num", sql: "inv_box.real_mr" }, { t: "公定回潮", k: "stdMR", w: 60, cls: "num", sql: "inv_box.std_mr" },
+      { t: "质检组", k: "qcGroup", w: 65, sql: "inv_box.qc_group" }, { t: "检测时间", k: "qcTime", w: 88, sql: "inv_box.qc_time" }
     ],
     gen: D.boxInfo,
     edit: {
@@ -495,14 +495,14 @@ var MODULES = {
     title: "托盘信息", dateField: "创建时间",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "快速打印", "批量新增", "近30天MES同步", "打印", "查询选项", "查询", "高级查询"],
     columns: [
-      { t: "编号", k: "seq", w: 36, cls: "ctr" }, { t: "托盘号", k: "no", w: 100, cls: "bold c-blue" },
-      { t: "空托", k: "empty", w: 40, cls: "ctr" }, { t: "当前库位", k: "loc", w: 85 },
-      { t: "托盘状态", k: "status", w: 60, cls: "ctr", cmap: { "闲": "c-green", "货": "c-blue" } },
-      { t: "立库状态", k: "asrsStatus", w: 60, cls: "ctr" }, { t: "空托数量", k: "emptyQty", w: 60, cls: "num" },
-      { t: "箱个数", k: "boxCount", w: 55, cls: "num" }, { t: "批次号", k: "batch", w: 125 },
-      { t: "总箱数", k: "totalBoxes", w: 55, cls: "num" }, { t: "总重量", k: "totalWeight", w: 75, cls: "num" },
-      { t: "创建者", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 88 },
-      { t: "最后编辑人", k: "editor", w: 70 }, { t: "最后编辑时间", k: "eTime", w: 88 }
+      { t: "编号", k: "seq", w: 36, cls: "ctr" }, { t: "托盘号", k: "no", w: 100, cls: "bold c-blue", sql: "inv_pallet.pallet_no" },
+      { t: "空托", k: "empty", w: 40, cls: "ctr", sql: "(CASE WHEN inv_pallet.is_empty = 1 THEN '是' ELSE '否' END)" }, { t: "当前库位", k: "loc", w: 85, sql: "inv_pallet.loc_code" },
+      { t: "托盘状态", k: "status", w: 60, cls: "ctr", cmap: { "闲": "c-green", "货": "c-blue" }, sql: "inv_pallet.status" },
+      { t: "立库状态", k: "asrsStatus", w: 60, cls: "ctr", sql: "inv_pallet.asrs_status" }, { t: "空托数量", k: "emptyQty", w: 60, cls: "num", sql: "inv_pallet.empty_qty" },
+      { t: "箱个数", k: "boxCount", w: 55, cls: "num", sql: "inv_pallet.box_count" }, { t: "批次号", k: "batch", w: 125, sql: "inv_pallet.batch_no" },
+      { t: "总箱数", k: "totalBoxes", w: 55, cls: "num", sql: "inv_pallet.total_boxes" }, { t: "总重量", k: "totalWeight", w: 75, cls: "num", sql: "inv_pallet.total_weight" },
+      { t: "创建者", k: "creator", w: 60, sql: "inv_pallet.creator" }, { t: "创建时间", k: "cTime", w: 88, sql: "inv_pallet.create_time" },
+      { t: "最后编辑人", k: "editor", w: 70, sql: "inv_pallet.updater" }, { t: "最后编辑时间", k: "eTime", w: 88, sql: "inv_pallet.update_time" }
     ],
     gen: D.palletInfo,
     edit: {
@@ -519,12 +519,12 @@ var MODULES = {
     title: "库位信息", dateField: "创建时间",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "查询选项", "查询", "高级查询", "显示设置", "打印", "导出"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "ERP仓位号", k: "erpLoc", w: 85 },
-      { t: "仓位编号", k: "locCode", w: 90, cls: "bold c-blue" }, { t: "仓位名称", k: "locName", w: 130 },
-      { t: "所属仓库", k: "wh", w: 90 }, { t: "ERP编号", k: "erpNo", w: 70 }, { t: "ERP名称", k: "erpName", w: 90 },
-      { t: "ERP最后同步时间", k: "lastSync", w: 110 }, { t: "启用", k: "enabled", w: 40, cls: "ctr", type: "check" },
-      { t: "创建者", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 88 },
-      { t: "最后编辑人", k: "editor", w: 70 }, { t: "最后编辑时间", k: "eTime", w: 88 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "ERP仓位号", k: "erpLoc", w: 85, sql: "base_location.erp_loc" },
+      { t: "仓位编号", k: "locCode", w: 90, cls: "bold c-blue", sql: "base_location.loc_code" }, { t: "仓位名称", k: "locName", w: 130, sql: "base_location.loc_name" },
+      { t: "所属仓库", k: "wh", w: 90, sql: "base_warehouse.warehouse_name" }, { t: "ERP编号", k: "erpNo", w: 70, sql: "base_warehouse.erp_no" }, { t: "ERP名称", k: "erpName", w: 90, sql: "base_warehouse.erp_name" },
+      { t: "ERP最后同步时间", k: "lastSync", w: 110, sql: "base_location.last_sync" }, { t: "启用", k: "enabled", w: 40, cls: "ctr", type: "check", sql: "(CASE WHEN base_location.enabled = 1 THEN '是' ELSE '否' END)" },
+      { t: "创建者", k: "creator", w: 60, sql: "base_location.creator" }, { t: "创建时间", k: "cTime", w: 88, sql: "base_location.create_time" },
+      { t: "最后编辑人", k: "editor", w: 70, sql: "base_location.updater" }, { t: "最后编辑时间", k: "eTime", w: 88, sql: "base_location.update_time" }
     ],
     gen: D.locationInfo,
     edit: {
@@ -541,12 +541,12 @@ var MODULES = {
     title: "仓库信息", dateField: "创建时间",
     toolbar: ["新增", "复制", "编辑", "查看", "删除", "同步ERP仓库", "查询条件", "查询", "高级查询", "显示设置", "打印", "导出"],
     columns: [
-      { t: "编号", k: "seq", w: 36, cls: "ctr" }, { t: "名称", k: "name", w: 110, cls: "bold c-blue" },
-      { t: "ERP编号", k: "erpNo", w: 70 }, { t: "ERP名称", k: "erpName", w: 100 },
-      { t: "ERP最后同步时间", k: "lastSync", w: 115 }, { t: "仓库类型", k: "whType", w: 85, cls: "ctr" },
-      { t: "启用", k: "enabled", w: 40, cls: "ctr", type: "check" },
-      { t: "创建人", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 100 },
-      { t: "修改人", k: "editor", w: 60 }, { t: "修改时间", k: "eTime", w: 100 }
+      { t: "编号", k: "seq", w: 36, cls: "ctr" }, { t: "名称", k: "name", w: 110, cls: "bold c-blue", sql: "base_warehouse.warehouse_name" },
+      { t: "ERP编号", k: "erpNo", w: 70, sql: "base_warehouse.erp_no" }, { t: "ERP名称", k: "erpName", w: 100, sql: "base_warehouse.erp_name" },
+      { t: "ERP最后同步时间", k: "lastSync", w: 115, sql: "base_warehouse.last_sync" }, { t: "仓库类型", k: "whType", w: 85, cls: "ctr", sql: "base_warehouse.wh_type" },
+      { t: "启用", k: "enabled", w: 40, cls: "ctr", type: "check", sql: "(CASE WHEN base_warehouse.enabled = 1 THEN '是' ELSE '否' END)" },
+      { t: "创建人", k: "creator", w: 60, sql: "base_warehouse.creator" }, { t: "创建时间", k: "cTime", w: 100, sql: "base_warehouse.create_time" },
+      { t: "修改人", k: "editor", w: 60, sql: "base_warehouse.updater" }, { t: "修改时间", k: "eTime", w: 100, sql: "base_warehouse.update_time" }
     ],
     gen: D.warehouseInfo,
     edit: {
@@ -574,10 +574,10 @@ var MODULES = {
     title: "业务字典", dateField: "创建时间",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "查询选项", "高级查询", "刷新"],
     columns: [
-      { t: "#", k: "seq", w: 36, cls: "ctr" }, { t: "字典编码", k: "code", w: 180, cls: "bold c-blue" },
-      { t: "项目名称", k: "name", w: 220 },
-      { t: "创建人", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 100 },
-      { t: "编辑人", k: "editor", w: 60 }, { t: "编辑时间", k: "eTime", w: 100 }
+      { t: "#", k: "seq", w: 36, cls: "ctr" }, { t: "字典编码", k: "code", w: 180, cls: "bold c-blue", sql: "base_dict.dict_code" },
+      { t: "项目名称", k: "name", w: 220, sql: "base_dict.dict_name" },
+      { t: "创建人", k: "creator", w: 60, sql: "base_dict.creator" }, { t: "创建时间", k: "cTime", w: 100, sql: "base_dict.create_time" },
+      { t: "编辑人", k: "editor", w: 60, sql: "base_dict.updater" }, { t: "编辑时间", k: "eTime", w: 100, sql: "base_dict.update_time" }
     ],
     gen: D.bizDict,
     edit: {
@@ -598,10 +598,10 @@ var MODULES = {
     title: "系统设置", dateField: "创建时间",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "查询选项", "高级查询", "刷新", "设置"],
     columns: [
-      { t: "#", k: "seq", w: 36, cls: "ctr" }, { t: "设置项编号", k: "code", w: 180, cls: "bold c-blue" },
-      { t: "项目名称", k: "name", w: 220 },
-      { t: "创建人", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 100 },
-      { t: "编辑人", k: "editor", w: 60 }, { t: "编辑时间", k: "eTime", w: 100 }
+      { t: "#", k: "seq", w: 36, cls: "ctr" }, { t: "设置项编号", k: "code", w: 180, cls: "bold c-blue", sql: "sys_setting.setting_code" },
+      { t: "项目名称", k: "name", w: 220, sql: "sys_setting.setting_name" },
+      { t: "创建人", k: "creator", w: 60, sql: "sys_setting.creator" }, { t: "创建时间", k: "cTime", w: 100, sql: "sys_setting.create_time" },
+      { t: "编辑人", k: "editor", w: 60, sql: "sys_setting.updater" }, { t: "编辑时间", k: "eTime", w: 100, sql: "sys_setting.update_time" }
     ],
     gen: D.sysSetting,
     edit: {
@@ -622,10 +622,10 @@ var MODULES = {
     title: "模块组别", dateField: "创建时间",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "查询选项", "查询", "高级查询", "设置", "刷新"],
     columns: [
-      { t: "组织代号", k: "code", w: 130, cls: "bold c-blue" }, { t: "组名", k: "name", w: 120 },
-      { t: "图标", k: "icon", w: 160 }, { t: "排序", k: "sort", w: 50, cls: "num" },
-      { t: "创建人", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 110 },
-      { t: "编辑人", k: "editor", w: 60 }, { t: "编辑时间", k: "eTime", w: 110 }
+      { t: "组织代号", k: "code", w: 130, cls: "bold c-blue", sql: "sys_module_group.group_code" }, { t: "组名", k: "name", w: 120, sql: "sys_module_group.group_name" },
+      { t: "图标", k: "icon", w: 160, sql: "sys_module_group.icon" }, { t: "排序", k: "sort", w: 50, cls: "num", sql: "sys_module_group.sort_no" },
+      { t: "创建人", k: "creator", w: 60, sql: "sys_module_group.creator" }, { t: "创建时间", k: "cTime", w: 110, sql: "sys_module_group.create_time" },
+      { t: "编辑人", k: "editor", w: 60, sql: "sys_module_group.updater" }, { t: "编辑时间", k: "eTime", w: 110, sql: "sys_module_group.update_time" }
     ],
     gen: D.moduleGroup,
     edit: {
@@ -638,14 +638,14 @@ var MODULES = {
     title: "功能模块", dateField: "创建时间",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "查询选项", "查询", "高级查询"],
     columns: [
-      { t: "类名称", k: "cls", w: 170 }, { t: "组织ID", k: "orgId", w: 55, cls: "ctr" }, { t: "Id", k: "id", w: 50, cls: "ctr" },
-      { t: "从属功能组", k: "group", w: 80, cls: "ctr" }, { t: "模块编号", k: "code", w: 130, cls: "bold c-blue" },
-      { t: "模块名称", k: "name", w: 90 }, { t: "类型", k: "type", w: 45, cls: "ctr" },
-      { t: "数据主表", k: "mainTable", w: 120 }, { t: "状态字段", k: "statusField", w: 80 },
-      { t: "启用状态", k: "enabled", w: 60, cls: "ctr", type: "check" }, { t: "启用流程", k: "flow", w: 60, cls: "ctr", type: "check" },
-      { t: "创建日志", k: "log", w: 55, cls: "ctr", type: "check" }, { t: "功能路径", k: "path", w: 150 },
-      { t: "模块图标", k: "icon", w: 110 }, { t: "排序", k: "sort", w: 45, cls: "num" },
-      { t: "创建人", k: "creator", w: 60 }, { t: "编辑人", k: "editor", w: 60 }, { t: "编辑时间", k: "eTime", w: 90 }
+      { t: "类名称", k: "cls", w: 170, sql: "sys_func_module.module_cls" }, { t: "组织ID", k: "orgId", w: 55, cls: "ctr", sql: "sys_func_module.org_id" }, { t: "Id", k: "id", w: 50, cls: "ctr", sql: "sys_func_module.id" },
+      { t: "从属功能组", k: "group", w: 80, cls: "ctr", sql: "sys_module_group.group_name" }, { t: "模块编号", k: "code", w: 130, cls: "bold c-blue", sql: "sys_func_module.module_code" },
+      { t: "模块名称", k: "name", w: 90, sql: "sys_func_module.module_name" }, { t: "类型", k: "type", w: 45, cls: "ctr", sql: "sys_func_module.module_type" },
+      { t: "数据主表", k: "mainTable", w: 120, sql: "sys_func_module.main_table" }, { t: "状态字段", k: "statusField", w: 80, sql: "sys_func_module.status_field" },
+      { t: "启用状态", k: "enabled", w: 60, cls: "ctr", type: "check", sql: "(CASE WHEN sys_func_module.enabled = 1 THEN '是' ELSE '否' END)" }, { t: "启用流程", k: "flow", w: 60, cls: "ctr", type: "check", sql: "(CASE WHEN sys_func_module.has_flow = 1 THEN '是' ELSE '否' END)" },
+      { t: "创建日志", k: "log", w: 55, cls: "ctr", type: "check", sql: "(CASE WHEN sys_func_module.has_log = 1 THEN '是' ELSE '否' END)" }, { t: "功能路径", k: "path", w: 150, sql: "sys_func_module.module_path" },
+      { t: "模块图标", k: "icon", w: 110, sql: "sys_func_module.icon" }, { t: "排序", k: "sort", w: 45, cls: "num", sql: "sys_func_module.sort_no" },
+      { t: "创建人", k: "creator", w: 60, sql: "sys_func_module.creator" }, { t: "编辑人", k: "editor", w: 60, sql: "sys_func_module.updater" }, { t: "编辑时间", k: "eTime", w: 90, sql: "sys_func_module.update_time" }
     ],
     gen: D.funcModule,
     edit: {
@@ -664,12 +664,12 @@ var MODULES = {
     title: "用户信息", dateField: "创建时间",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "查询选项", "查询", "高级查询"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "用户编号", k: "account", w: 75, cls: "bold c-blue" },
-      { t: "用户名", k: "userName", w: 75 }, { t: "启用", k: "enabled", w: 40, cls: "ctr", type: "check" },
-      { t: "工号", k: "empId", w: 60 }, { t: "姓名", k: "name", w: 70 }, { t: "部门", k: "dept", w: 90 },
-      { t: "公司", k: "company", w: 170 }, { t: "备注", k: "remark", w: 80 },
-      { t: "创建人", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 90 },
-      { t: "编辑人", k: "editor", w: 60 }, { t: "编辑时间", k: "eTime", w: 90 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "用户编号", k: "account", w: 75, cls: "bold c-blue", sql: "sys_user.account" },
+      { t: "用户名", k: "userName", w: 75, sql: "sys_user.user_name" }, { t: "启用", k: "enabled", w: 40, cls: "ctr", type: "check", sql: "(CASE WHEN sys_user.enabled = 1 THEN '是' ELSE '否' END)" },
+      { t: "工号", k: "empId", w: 60, sql: "sys_user.emp_id" }, { t: "姓名", k: "name", w: 70, sql: "sys_user.user_name" }, { t: "部门", k: "dept", w: 90, sql: "sys_user.dept" },
+      { t: "公司", k: "company", w: 170, sql: "sys_user.company" }, { t: "备注", k: "remark", w: 80, sql: "sys_user.remark" },
+      { t: "创建人", k: "creator", w: 60, sql: "sys_user.creator" }, { t: "创建时间", k: "cTime", w: 90, sql: "sys_user.create_time" },
+      { t: "编辑人", k: "editor", w: 60, sql: "sys_user.updater" }, { t: "编辑时间", k: "eTime", w: 90, sql: "sys_user.update_time" }
     ],
     gen: D.userInfo,
     edit: {
@@ -692,8 +692,8 @@ var MODULES = {
     title: "角色设置", dateField: "创建日期",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "查询选项", "查询", "高级查询", "过滤", "刷新"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "角色名称", k: "name", w: 140, cls: "bold c-blue" },
-      { t: "备注", k: "remark", w: 140 }, { t: "创建日期", k: "cDate", w: 100 }, { t: "编辑日期", k: "eDate", w: 100 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "角色名称", k: "name", w: 140, cls: "bold c-blue", sql: "sys_role.role_name" },
+      { t: "备注", k: "remark", w: 140, sql: "sys_role.remark" }, { t: "创建日期", k: "cDate", w: 100, sql: "sys_role.create_time" }, { t: "编辑日期", k: "eDate", w: 100, sql: "sys_role.update_time" }
     ],
     gen: D.roleSetting,
     edit: {
@@ -715,10 +715,10 @@ var MODULES = {
     title: "打印模板", dateField: "创建时间",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "查询选项", "查询", "高级查询"],
     columns: [
-      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "所属模块", k: "module", w: 90, cls: "ctr" },
-      { t: "模板名称", k: "name", w: 200, cls: "bold c-blue" }, { t: "启用", k: "enabled", w: 40, cls: "ctr", type: "check" },
-      { t: "编辑人", k: "editor", w: 60 }, { t: "编辑时间", k: "eTime", w: 90 },
-      { t: "创建人", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 90 }
+      { t: "序号", k: "seq", w: 36, cls: "ctr" }, { t: "所属模块", k: "module", w: 90, cls: "ctr", sql: "sys_print_template.module_name" },
+      { t: "模板名称", k: "name", w: 200, cls: "bold c-blue", sql: "sys_print_template.tpl_name" }, { t: "启用", k: "enabled", w: 40, cls: "ctr", type: "check", sql: "(CASE WHEN sys_print_template.enabled = 1 THEN '是' ELSE '否' END)" },
+      { t: "编辑人", k: "editor", w: 60, sql: "sys_print_template.updater" }, { t: "编辑时间", k: "eTime", w: 90, sql: "sys_print_template.update_time" },
+      { t: "创建人", k: "creator", w: 60, sql: "sys_print_template.creator" }, { t: "创建时间", k: "cTime", w: 90, sql: "sys_print_template.create_time" }
     ],
     gen: D.printTemplate,
     edit: {
@@ -734,12 +734,12 @@ var MODULES = {
     title: "提醒设置", dateField: "创建时间",
     toolbar: ["新建", "复制", "编辑", "查看", "删除", "查询选项", "高级查询", "刷新"],
     columns: [
-      { t: "排序", k: "sort", w: 40, cls: "ctr" }, { t: "模块", k: "module", w: 90, cls: "ctr" },
-      { t: "提醒名称", k: "name", w: 170, cls: "bold c-blue" }, { t: "启用", k: "enabled", w: 40, cls: "ctr", type: "check" },
-      { t: "主键", k: "pk", w: 50, cls: "ctr" }, { t: "公开", k: "isPublic", w: 45, cls: "ctr", type: "check" },
-      { t: "允许操作用户", k: "allowUsers", w: 150 },
-      { t: "创建人", k: "creator", w: 60 }, { t: "创建时间", k: "cTime", w: 130 },
-      { t: "编辑人", k: "editor", w: 60 }, { t: "编辑时间", k: "eTime", w: 100 }
+      { t: "排序", k: "sort", w: 40, cls: "ctr", sql: "sys_remind_setting.sort_no" }, { t: "模块", k: "module", w: 90, cls: "ctr", sql: "sys_remind_setting.module_name" },
+      { t: "提醒名称", k: "name", w: 170, cls: "bold c-blue", sql: "sys_remind_setting.remind_name" }, { t: "启用", k: "enabled", w: 40, cls: "ctr", type: "check", sql: "(CASE WHEN sys_remind_setting.enabled = 1 THEN '是' ELSE '否' END)" },
+      { t: "主键", k: "pk", w: 50, cls: "ctr", sql: "sys_remind_setting.pk_field" }, { t: "公开", k: "isPublic", w: 45, cls: "ctr", type: "check", sql: "(CASE WHEN sys_remind_setting.is_public = 1 THEN '是' ELSE '否' END)" },
+      { t: "允许操作用户", k: "allowUsers", w: 150, sql: "sys_remind_setting.allow_users" },
+      { t: "创建人", k: "creator", w: 60, sql: "sys_remind_setting.creator" }, { t: "创建时间", k: "cTime", w: 130, sql: "sys_remind_setting.create_time" },
+      { t: "编辑人", k: "editor", w: 60, sql: "sys_remind_setting.updater" }, { t: "编辑时间", k: "eTime", w: 100, sql: "sys_remind_setting.update_time" }
     ],
     gen: D.remindSetting,
     edit: {

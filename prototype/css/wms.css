@@ -410,6 +410,30 @@ table.grid td.wrapcell { white-space: normal; word-break: break-all; }
 .cs-grid table.grid td input[type="checkbox"] { margin: 0; }
 .cs-grid table.grid tr.cs-sel td { background: #c8e0f6 !important; }
 .cs-grid table.grid tr.cs-hidden td { color: #a0aebc; text-decoration: line-through; }
+.cs-note {
+  font-size: 11px; color: #5b7286; line-height: 1.5; background: #f4f8fc;
+  border: 1px solid #dce8f4; border-radius: 3px; padding: 5px 8px; margin: 0 0 6px;
+}
+.cs-grid td div.cs-sql {
+  font-family: Consolas, "Courier New", monospace; font-size: 11px; color: #24608d;
+  cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px;
+}
+.cs-grid td div.cs-sql:hover { color: #0d4f8b; text-decoration: underline; }
+.cs-grid td div.cs-sql.cs-empty { color: #b3c0cd; font-family: inherit; }
+
+/* 取值表达式编辑器（直接取值 / 值翻译 / 高级表达式） */
+.sb-body { padding: 10px 12px; }
+.sb-tip { font-size: 11px; color: #5b7286; margin: 6px 0 8px; }
+.sb-row { display: flex; align-items: center; gap: 6px; margin: 6px 0; font-size: 12px; }
+.sb-row label { width: 52px; color: #5b7286; flex: none; }
+.sb-row select, .sb-row input[type="text"] { flex: 1; height: 22px; border: 1px solid #9db6ce; font-size: 12px; padding: 0 4px; color: #22374a; background: #fff; }
+.sb-map { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+.sb-map input { flex: 1; height: 22px; border: 1px solid #9db6ce; font-size: 12px; padding: 0 4px; }
+.sb-arrow, .sb-del { color: #8aa0b4; flex: none; }
+.sb-del { cursor: pointer; padding: 0 4px; font-size: 14px; }
+.sb-del:hover { color: #c0392b; }
+.sb-rows { max-height: 170px; overflow: auto; border: 1px dashed #c7d5e3; padding: 6px; margin: 4px 0; }
+.sb-prev { font-family: Consolas, monospace; font-size: 11px; color: #24608d; background: #f4f8fc; border: 1px solid #dce8f4; border-radius: 3px; padding: 6px 8px; margin-top: 6px; word-break: break-all; white-space: pre-wrap; }
 
 /* ---------- PDA 工作台 ---------- */
 .pda-page { background: linear-gradient(160deg, #46586e, #2b3849); }

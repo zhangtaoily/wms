@@ -1,0 +1,7 @@
+onlyBuiltDependencies:
+  - core-js
+  - ejs
+  - esbuild
+  - fsevents
+  - highlight.js
+  - yorkie

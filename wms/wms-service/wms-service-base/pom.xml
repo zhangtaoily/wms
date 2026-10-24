@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.wms</groupId>
+        <artifactId>wms-service</artifactId>
+        <version>5.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>wms-service-base</artifactId>
+
+    <description>
+        基础数据服务模块（仓库/仓位/物料/业务批次/库存台账/打印模板/提醒设置）
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.wms</groupId>
+            <artifactId>wms-service-common</artifactId>
+            <version>5.0.0</version>
+        </dependency>
+    </dependencies>
+</project>

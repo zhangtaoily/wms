@@ -1,0 +1,33 @@
+stages:
+  - build
+  - deploy
+
+build-job:
+  stage: build
+  script:
+    - echo "Hello,Wms"
+    - mvn clean package
+  artifacts:
+    paths:
+      - /home/gitlab-runner/builds/T1AFxSd5J/0/wms/wms/wms-admin/target/wms-admin.jar
+  rules:
+    - when: manual
+
+deploy-test:
+  stage: deploy
+  dependencies:
+    - build-job
+  script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - ssh administrator@192.168.0.75 "D:/wms/stop.bat"
+    - scp -p /home/gitlab-runner/builds/T1AFxSd5J/0/wms/wms/wms-admin/target/wms-admin.jar administrator@192.168.0.75:D:/wms/wms-admin.jar
+    - ssh administrator@192.168.0.75 start javaw -jar "D:/wms/wms-admin.jar" > app.log 2>&1
+  environment: test
+  rules:
+    - when: manual

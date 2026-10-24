@@ -1,0 +1,68 @@
+######################################################################
+# Build Tools
+/.history/*
+.gradle
+/build/
+!gradle/wrapper/gradle-wrapper.jar
+logs/
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+######################################################################
+# IDE
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### JRebel ###
+rebel.xml
+
+### NetBeans ###
+nbproject/private/
+build/*
+nbbuild/
+nbdist/
+.nb-gradle/
+
+######################################################################
+# Others
+*.log
+*.xml.versionsBackup
+*.swp
+
+!*/build/*.java
+!*/build/*.html
+!*/build/*.xml
+/.idea/*
+/logs/*
+/logs/
+/wms-service/wms-service-system/src/main/resources/mapper/system/whMatInvLoc/
+/wms-service/wms-service-system/src/main/resources/mapper/system/whMatInvLoc/
+.lh/.lhignore
+/.xcodemap/
+/.history/*
+
+.DS_Store
+/wms-ui/**/CLAUDE.md
+/wms-ui/.serena
+/wms-ui/.claude
+wms-ui/dual-repo-sync.skill
+wms-ui/.serena
+wms-ui/**/CLAUDE.MD
+wms-ui/**/.claude
+wms-ui/**/.cursor
+
+repository/
+logs/
+docs/
