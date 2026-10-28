@@ -17,48 +17,13 @@
       :hiddenButtonList="hiddenButtonList"
       :customizeConditions="customizeConditions"
     >
-      <template #buttons>
-        <!-- <el-button size="mini" @click="handleFullSend" v-has-role="['admin']"
-          >全量发送</el-button
-        > -->
-        <!-- <div class="csLclBut"> -->
-        <el-col :span="1.5">
-          <el-dropdown
-            v-has-role="['admin']"
-            v-if="
-              dictDataList.work_timing && dictDataList.work_timing.length > 1
-            "
-            @command="handleDropdownClick"
-          >
-            <el-button type="mini">批量发送</el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item
-                style="width: 100px; font-size: 14px; padding: 6px"
-                v-for="item in dictDataList.work_timing"
-                :key="item.dictValue"
-                :label="item.dictLabel"
-                :value="item.dictValue"
-                :command="item.dictValue"
-                >{{ item.dictLabel }}</el-dropdown-item
-              >
-            </el-dropdown-menu>
-          </el-dropdown>
-        </el-col>
-        <!-- </div> -->
-      </template>
     </DynamicList>
   </div>
 </template>
 
 <script>
 import DynamicList from "@/components/DynamicList/index.vue";
-import {
-  allSend,
-  batchSend,
-  batchSendCondition,
-} from "@/api/system/interfaceConfig";
 import { getDetails } from "@/api/system/common";
-import { getDictDataList } from "@/api/system/dict/data";
 import dictData from "@/components/DictData";
 
 export default {
@@ -109,9 +74,6 @@ export default {
       // openRadioSelection:true,
       functionName: null,
       dialogName: null,
-      // 数据字典列表
-      dictDataList: [],
-      dicts: ["work_timing"],
       // 隐藏按钮列表
       hiddenButtonList: [],
       // 变更Map
@@ -156,7 +118,6 @@ export default {
     console.log("demo-list-created");
     this.functionName = this.$route.query.functionName || this.$route.meta.perms;
     this.dialogName = this.$route.query.dialogName;
-    this.getDictData();
     // 不在map中说明不需要变更按钮
     if (!this.changeOrderMap[this.functionName]) {
       this.hiddenButtonList.push("change");
@@ -383,54 +344,6 @@ export default {
         console.log("请先选中一条数据");
       } else {
         console.log("选择单条数据");
-      }
-    },
-    // 批量发送
-    handleBatchSend() {
-      const ids = this.$refs.dynamicList.getIds();
-      console.log(ids);
-      if (ids.length <= 0) {
-        return this.$message.warning("请选择数据");
-      } else {
-        batchSend(this.functionName, ids).then((res) => {
-          this.$message.success("发送成功");
-        });
-      }
-    },
-    // 全量发送
-    handleFullSend() {
-      this.$modal
-        .confirmHTML("是否确认全量发送", "确认")
-        .then(() => {
-          allSend(this.functionName).then((res) => {
-            this.$message.success("发送成功");
-          });
-        })
-        .catch((err) => {
-          console.log("err :>> ", err); // this.$modal.msgSuccess("取消提交", err);
-        });
-    },
-    // 获取全部数据字典数据
-    getDictData() {
-      this.dictList = getDictDataList(this.dicts)
-        .then((res) => {
-          this.dictDataList = res.data;
-        })
-        .catch((err) => {
-          this.$message.error("获取数据字段数据失败");
-        });
-    },
-    // 处理选单按钮单击事件
-    handleDropdownClick(command) {
-      const ids = this.$refs.dynamicList.getIds();
-      console.log(ids);
-      if (ids.length <= 0) {
-        return this.$message.warning("请选择数据");
-      } else {
-        console.log(this.functionName, ids, command);
-        batchSendCondition(this.functionName, ids, command).then((res) => {
-          this.$message.success("发送成功");
-        });
       }
     },
 

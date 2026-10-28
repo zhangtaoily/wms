@@ -20,7 +20,6 @@ import com.wms.common.core.domain.*;
 import com.wms.common.core.domain.event.OperLogEvent;
 import com.wms.common.core.domain.model.LoginUser;
 import com.wms.common.enums.*;
-import com.wms.common.enums.dicts.WorkTimingEnum;
 import com.wms.common.helper.LoginHelper;
 import com.wms.common.thread.ThreadPool;
 import com.wms.common.utils.*;
@@ -174,11 +173,6 @@ public abstract class AbstractDynamicsFormService<E extends IdEntity, M extends 
     }
 
     public void beforePass(Long id, TableNode root, Map<String, List<Map<String, Object>>> dbOldData) {
-        try {
-            IInterfaceHelper _interfaceHelp = getInterfaceHelper();
-            _interfaceHelp.setAPIInfo(dbOldData, root, id, 2);
-        } catch (Exception ex) {
-        }
     }
 
     public void afterRejectStateChanged(Long id, TableNode root, Map<String, Object> bo) {
@@ -188,36 +182,12 @@ public abstract class AbstractDynamicsFormService<E extends IdEntity, M extends 
     }
 
     public void afterPass(Long id, TableNode root, Map<String, List<Map<String, Object>>> dbOldData, Map<String, List<Map<String, Object>>> dbNewData) {
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                // 主事务提交后执行异步任务
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        IInterfaceHelper _interfaceHelp = getInterfaceHelper();
-                        _interfaceHelp.setAPIInfo(dbNewData, root, id, 1);
-                    } catch (Exception ex) {
-                        log.error("异步操作异常", ex);
-                    }
-                }, ThreadPool.fiveThreadExecutor);
-            }
-        });
     }
 
     public void afterReject(Long id) {
     }
 
     public Tuple2<Boolean, String> checkRollBack(Long id) {
-        //当前是通过状态的单据，如果有最新执行中的分发日志。则不能撤回。
-        if (BillStatusEnum.PASS.getCode().equals(getStatusFieldValue(fetchTableNode(), id).getSecond())) {
-            //通过后 有没有 执行中的分发日志
-            Boolean hasInProgressLog = ApplicationContextHolder.getBean(ISysInterfaceLogService.class).hasInProgressLog(id);
-            if (hasInProgressLog) {
-                return Tuple2.of(false, "单据有执行中的分发日志，不能撤回");
-            }
-            return Tuple2.of(true, "撤回成功");
-        }
-
         return Tuple2.of(true, "校验成功");
     }
 
@@ -264,12 +234,7 @@ public abstract class AbstractDynamicsFormService<E extends IdEntity, M extends 
     }
 
     public Tuple2<Boolean, String> beforeRollBack(Long id, TableNode root, Map<String, List<Map<String, Object>>> dbData) {
-        try {
-            IInterfaceHelper _interfaceHelp = getInterfaceHelper();
-            return _interfaceHelp.setAPIInfo(dbData, root, id, 3);
-        } catch (Exception ex) {
-            return Tuple2.of(false, ex.getMessage());
-        }
+        return Tuple2.of(true, null);
     }
 
     public Tuple2<Boolean, String> afterRollBack(Long id, TableNode root, Map<String, List<Map<String, Object>>> dbData) {
@@ -2393,10 +2358,6 @@ public abstract class AbstractDynamicsFormService<E extends IdEntity, M extends 
         return ApplicationContextHolder.getBean(IWfConfigService.class);
     }
 
-    public IInterfaceHelper getInterfaceHelper() {
-        return ApplicationContextHolder.getBean(IInterfaceHelper.class);
-    }
-
     public IWorkFlowService getWorkFlowService() {
         return ApplicationContextHolder.getBean(IWorkFlowService.class);
     }
@@ -2405,59 +2366,9 @@ public abstract class AbstractDynamicsFormService<E extends IdEntity, M extends 
         return ApplicationContextHolder.getBean(ISysEmployeeService.class);
     }
 
-    /**
-     * 批量分发
-     *
-     * @param ids
-     * @return
-     */
-    public Boolean muliSend(Long[] ids) {
-        for (Long id : ids) {
-            Map<String, List<Map<String, Object>>> resultMap = doLoad(id);
-            TableNode root = fetchTableNode();
-            IInterfaceHelper _interfaceHelper = getInterfaceHelper();
-            _interfaceHelper.setAPIInfo(resultMap, root, id, 1);
-        }
-        return true;
-    }
-
-    public Boolean muliSend(Long[] ids, int workTiming) {
-        for (Long id : ids) {
-            Map<String, List<Map<String, Object>>> resultMap = doLoad(id);
-            TableNode root = fetchTableNode();
-            IInterfaceHelper _interfaceHelper = getInterfaceHelper();
-            _interfaceHelper.setAPIInfo(resultMap, root, id, workTiming);
-        }
-        return true;
-    }
-
-    /**
-     * 全量分发
-     *
-     * @return
-     */
-    public Boolean allSend() {
-        TableNode root = fetchTableNode();
-        TableNode tree = fetchTableNode();
-        Class<?> table = tree.getTableClass();
-        String tableName = TableInfoHelper.getTableInfo(table).getTableName();
-        CustomizeMapper customizeMapper = (CustomizeMapper) ApplicationContextHolder.getBean(tree.getMapper());
-
-        String sql = SqlConstant.SELECT + tableName + ".id " + SqlConstant.FROM + ListUtils.makeStringSkipNull(" ", tableName, tree.getJoinTables()) + SqlConstant.WHERE + tableName + ".pact_state=3";
-        List<Map<String, Object>> data = customizeMapper.queryList(sql);
-        for (Map<String, Object> item : data) {
-            Long id = (Long) item.get("id");
-            Map<String, List<Map<String, Object>>> resultMap = doLoad(id);
-            IInterfaceHelper _interfaceHelper = getInterfaceHelper();
-            _interfaceHelper.setAPIInfo(resultMap, root, id);
-        }
-        return true;
-    }
-
     public R reTry(Long logId) {
-        IInterfaceHelper _interfaceHelper = getInterfaceHelper();
-        R result = _interfaceHelper.ReSend(logId);
-        return result;
+        // 接口分发功能已移除；WMS 单据的 ERP 同步重推由各单据服务覆写 reTry(Long) 实现
+        return R.fail("当前系统未启用接口分发功能");
     }
 
     /**
@@ -3215,42 +3126,6 @@ public abstract class AbstractDynamicsFormService<E extends IdEntity, M extends 
         row.put("cancelOaState", null);
         row.put("cancelReason", null);
         refreshFieldOnCopyGoods(null, row);
-    }
-
-    /**
-     * 分发
-     *
-     * @param id id
-     */
-    public void sendApiInfo(Long id) {
-        sendApiInfo(id, doLoad(id), WorkTimingEnum.AFTER_ACTIVATION);
-    }
-
-    /**
-     * 分发
-     *
-     * @param id id
-     */
-    public void sendApiInfo(Long id, WorkTimingEnum workTimingEnum) {
-        sendApiInfo(id, doLoad(id), workTimingEnum);
-    }
-
-    /**
-     * 分发
-     *
-     * @param id
-     * @param dbNewData
-     */
-    public void sendApiInfo(Long id, Map<String, List<Map<String, Object>>> dbNewData, WorkTimingEnum workTimingEnum) {
-        TableNode root = fetchTableNode();
-        new Thread(() -> {
-            try {
-                IInterfaceHelper _interfaceHelp = getInterfaceHelper();
-                _interfaceHelp.setAPIInfo(dbNewData, root, id, workTimingEnum.getCode());
-            } catch (Exception ex) {
-                log.error("分发异常", ex);
-            }
-        }).start();
     }
 
     /**

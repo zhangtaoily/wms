@@ -125,14 +125,6 @@
           >刷新缓存</el-button
         >
       </el-col>
-      <el-col :span="1.5">
-        <el-button size="mini" @click="handleBatchSend" v-has-role="['admin']"
-          >批量发送</el-button
-        >
-        <el-button size="mini" @click="handleFullSend" v-has-role="['admin']"
-          >全量发送</el-button
-        >
-      </el-col>
       <right-toolbar
         :showSearch.sync="showSearch"
         @queryTable="getList"
@@ -270,7 +262,6 @@ import {
   updateType,
   refreshCache,
 } from "@/api/system/dict/type";
-import { allSend, batchSend } from "@/api/system/interfaceConfig";
 
 export default {
   name: "Dict",
@@ -324,7 +315,6 @@ export default {
           },
         ],
       },
-      functionName: "SYS_DICT_DATA",
     };
   },
   created() {
@@ -440,24 +430,6 @@ export default {
       refreshCache().then(() => {
         this.$modal.msgSuccess("刷新成功");
         this.$store.dispatch("dict/cleanDict");
-      });
-    },
-    // 批量发送
-    handleBatchSend() {
-      const ids = this.ids;
-      console.log(ids);
-      if (ids.length <= 0) {
-        return this.$message.warning("请选择数据");
-      } else {
-        batchSend(this.functionName, ids).then((res) => {
-          this.$message.success("发送成功");
-        });
-      }
-    },
-    // 全量发送
-    handleFullSend() {
-      allSend(this.functionName).then((res) => {
-        this.$message.success("发送成功");
       });
     },
   },

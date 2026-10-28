@@ -1,8 +1,6 @@
 package com.wms.web.controller.common;
 
 import cn.dev33.satoken.annotation.SaIgnore;
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
@@ -223,49 +221,6 @@ public class TableController {
         }
 
         return R.fail(result.getSecond());
-    }
-
-    /**
-     * 批量分发
-     *
-     * @param function
-     * @param ids
-     * @return
-     */
-    @SaIgnore()
-    @PostMapping("/muli/{function}")
-    public R muliSend(@PathVariable("function") String function, @RequestBody Long[] ids) {
-        CommonFormManager.getInstance().getFormService(FunctionEnum.valueOf(function)).muliSend(ids);
-        return R.ok();
-    }
-
-    @SaIgnore()
-    @PostMapping("/muliCondition/{function}")
-    public R muliSend(@PathVariable("function") String function, @RequestBody JSONObject jObject) {
-        JSONArray ids = (JSONArray) jObject.get("ids");
-        String worktiming = jObject.get("worktiming").toString();
-        Long[] myIds = new Long[ids.size()];
-        for (int i = 0; i < myIds.length; i++) {
-            myIds[i] = Long.parseLong(ids.get(i).toString());
-        }
-        int workType = Integer.parseInt(worktiming);
-
-        CommonFormManager.getInstance().getFormService(FunctionEnum.valueOf(function))
-            .muliSend(Arrays.stream(myIds).distinct().toArray(Long[]::new), workType);
-        return R.ok();
-    }
-
-    /**
-     * 全量分发
-     *
-     * @param function
-     * @return
-     */
-    @SaIgnore()
-    @PatchMapping("/all/{function}")
-    public R allSend(@PathVariable("function") String function) {
-        CommonFormManager.getInstance().getFormService(FunctionEnum.valueOf(function)).allSend();
-        return R.ok();
     }
 
     @SaIgnore()

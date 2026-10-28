@@ -7,16 +7,12 @@
       :customizeConditions="customizeConditions"
       openMode="dialog"
     >
-      <template #second-buttons>
-        <el-button size="mini" @click="handleResend">重新发送</el-button>
-      </template>
     </DynamicList>
   </el-form>
 </template>
 
 <script>
 import DynamicList from "@/components/DynamicList/index.vue";
-import { reSend } from "@/api/system/interfaceConfig";
 export default {
   name: "InterfaceLogList",
   components: {
@@ -67,24 +63,6 @@ export default {
           filterGroup: "ADVANCE",
         },
       ];
-    },
-  },
-  methods: {
-    // 重新发送
-    handleResend() {
-      const ids = this.$refs.dynamicListLog.getIds();
-      if (ids.length <= 0) {
-        return this.$message.warning("请选择数据");
-      } else {
-        reSend(this.logFunctionName, ids[0])
-          .then((res) => {
-            this.$message.success("发送成功");
-            this.$refs.dynamicListLog.getList();
-          })
-          .catch((error) => {
-            this.$refs.dynamicListLog.getList();
-          });
-      }
     },
   },
 };

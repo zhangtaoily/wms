@@ -9,7 +9,6 @@ import com.wms.common.core.domain.PageQuery;
 import com.wms.common.core.domain.model.LoginUser;
 import com.wms.common.enums.FunctionEnum;
 import com.wms.common.helper.LoginHelper;
-import com.wms.common.utils.ListUtils;
 import com.wms.domain.SynErrorMessage;
 import com.wms.domain.SysFieldConfig;
 import com.wms.domain.SysInterfaceLog;
@@ -18,7 +17,6 @@ import com.wms.domain.view.InterfaceLogDataView;
 import com.wms.page.DynamicsTableDataInfo;
 import com.wms.service.common.service.AbstractDynamicsFormService;
 import com.wms.service.common.service.TableNode;
-import com.wms.service.common.spi.ISysInterfaceLogService;
 import com.wms.service.common.utils.TableNodeHelper;
 import com.wms.system.mapper.InterfaceLogMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +27,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Service
-public class SysInterfaceLogService extends AbstractDynamicsFormService<SysInterfaceLog, InterfaceLogMapper> implements ISysInterfaceLogService {
+public class SysInterfaceLogService extends AbstractDynamicsFormService<SysInterfaceLog, InterfaceLogMapper> {
     @Resource
     private InterfaceLogMapper interfaceLogMapper;
 
@@ -96,18 +94,5 @@ public class SysInterfaceLogService extends AbstractDynamicsFormService<SysInter
         });
 
         return errorMessages;
-    }
-
-    @Override
-    public Boolean hasInProgressLog(Long id) {
-        //最新的一条是待执行或者执行中的分发日志
-        List<SysInterfaceLog> sysInterfaceLogs = this.list(query -> query.eq(SysInterfaceLog::getPactId, id)
-            .orderByDesc(SysInterfaceLog::getCreateTime).last("limit 1"));
-
-        if(ListUtils.isEmpty(sysInterfaceLogs)){
-            return false;
-        }
-
-        return sysInterfaceLogs.get(0).getStatus().equals("0") || sysInterfaceLogs.get(0).getStatus().equals("1");
     }
 }

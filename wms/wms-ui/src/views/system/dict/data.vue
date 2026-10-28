@@ -147,16 +147,6 @@
             </template>
           </el-table-column>
           <el-table-column label="字典键值" align="center" prop="dictValue" />
-          <el-table-column
-            v-if="defaultDictType == 'dict_distribute'"
-            label="分发组织"
-            align="center"
-            prop="exField001"
-          >
-            <template slot-scope="scope">
-              {{ getOrgName(scope.row.exField001) }}
-            </template>
-          </el-table-column>
 
           <el-table-column label="字典排序" align="center" prop="dictSort" />
           <el-table-column label="状态" align="center" prop="status">
@@ -273,21 +263,7 @@
             <el-input v-model="form.speProFee" placeholder="请输入特殊工艺费" />
           </el-form-item>
         </template>
-        <el-form-item
-          v-if="form.dictType == 'dict_distribute'"
-          label="分发组织"
-          prop="exField001"
-        >
-          <el-select v-model="form.exField001">
-            <el-option
-              v-for="item in dict.type.wms_org"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item v-else label="拓展字段1" prop="exField001">
+        <el-form-item label="拓展字段1" prop="exField001">
           <el-input v-model="form.exField001" placeholder="请输入拓展字段1" />
         </el-form-item>
         <el-form-item label="拓展字段2" prop="exField002">
@@ -334,7 +310,7 @@ import {
 
 export default {
   name: "Data",
-  dicts: ["sys_normal_disable", "wms_org"],
+  dicts: ["sys_normal_disable"],
   data() {
     return {
       // 遮罩层
@@ -571,13 +547,6 @@ export default {
         },
         `data_${new Date().getTime()}.xlsx`
       );
-    },
-    // 获取组织名称
-    getOrgName(orgCode) {
-      const findItem = this.dict.type.wms_org.find(
-        (item) => item.value == orgCode
-      );
-      return findItem?.label || "未知组织" + findItem?.value;
     },
   },
 };

@@ -152,12 +152,6 @@ public interface ICommonFormService extends InitializingBean {
 
     Tuple2<Boolean, Object> copyAll(Long id, BasicBO bo);
 
-    Boolean muliSend(Long[] ids);
-
-    Boolean muliSend(Long[] ids, int workTiming);
-
-    Boolean allSend();
-
     R reTry(Long logId);
 
     @Override
