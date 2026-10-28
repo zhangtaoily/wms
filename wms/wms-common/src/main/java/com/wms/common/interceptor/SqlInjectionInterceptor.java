@@ -56,7 +56,7 @@ public class SqlInjectionInterceptor implements Interceptor {
     );
 
     private static final Pattern SYSTEM_TABLE_ACCESS = Pattern.compile(
-        "(?i)\\b(information_schema|mysql\\.|sys\\.|performance_schema|master\\.\\.|msdb\\.\\.)\\b"
+        "(?i)\\b(information_schema|mysql\\.|performance_schema|master\\.\\.|msdb\\.\\.)\\b"
     );
 
     private static final Pattern XP_CMDSHELL = Pattern.compile(
@@ -133,7 +133,7 @@ public class SqlInjectionInterceptor implements Interceptor {
             return invocation.proceed();
         }
 
-        log.info("执行sql注入检测开始");
+        //log.info("执行sql注入检测开始");
 
 
         Object[] args = invocation.getArgs();
@@ -149,6 +149,12 @@ public class SqlInjectionInterceptor implements Interceptor {
         String sql = boundSql.getSql();
 
         if (sql == null || sql.isEmpty()) {
+            return invocation.proceed();
+        }
+
+        //存储过程调用（CALL）跳过检测：语句前缀由mapper定义（call proc(${id})），参数为Long内联值，无注入面；
+        //且JSQLParser无法解析CALL语句，解析异常会被兜底逻辑误判为注入
+        if (sql.trim().matches("(?i)^(\\{)?\\s*call\\b.*")) {
             return invocation.proceed();
         }
 
@@ -344,9 +350,6 @@ public class SqlInjectionInterceptor implements Interceptor {
             PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
 
             if (plainSelect.getSelectItems() != null) {
-                if (plainSelect.getSelectItems().size() > 30) {
-                    score += 1;
-                }
                 int globalInfoFuncCount = 0;
                 for (SelectItem item : plainSelect.getSelectItems()) {
                     String itemStr = item.toString().toLowerCase();
@@ -400,7 +403,8 @@ public class SqlInjectionInterceptor implements Interceptor {
                 if (updateSet.getExpressions() != null) {
                     for (Expression expr : updateSet.getExpressions()) {
                         String exprStr = expr.toString().toLowerCase();
-                        if (exprStr.contains("(select") || exprStr.contains(" select ")) {
+                        //恶意子查询注入（extractvalue/updatexml等）由二级正则覆盖；纯(select sum(...))为业务合法写法，不计分
+                        if (exprStr.contains("extractvalue") || exprStr.contains("updatexml")) {
                             score += 2;
                         }
                     }
