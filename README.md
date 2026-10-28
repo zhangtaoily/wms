@@ -9,7 +9,7 @@
 | 路径 | 说明 |
 | --- | --- |
 | `wms/` | 工程本体（Maven 多模块后端 + wms-ui 前端） |
-| `prototype/` | 交互式静态原型（依据生产 WMS 界面还原） |
+| `prototype/` | 交互式静态原型 |
 | `WMS开发计划.html` | M1~M7 迭代开发计划 |
 | `WMS智能仓储系统PRD.html` | 产品需求文档 |
 | `wms_table_design.sql` | 业务表结构设计 |
