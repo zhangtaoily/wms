@@ -79,7 +79,7 @@ java -jar wms-admin/target/wms-admin.jar
 | `admin` | `admin123` | 超级管理员，拥有全部权限 |
 
 - 登录验证码默认关闭（`captchaEnabled=false`）
-- 新建用户初始密码由系统参数 `sys.user.initPassword` 控制（当前为 `Xa888888.`），用户管理页「默认密码」按钮可查看
+- 新建用户初始密码由系统参数 `sys.user.initPassword` 控制（当前为 `admin123`），用户管理页「默认密码」按钮可查看
 
 ### 前端
 
