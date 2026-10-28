@@ -10,7 +10,7 @@
 
     <name>wms</name>
     <url>https://gitee.com/dromara/RuoYi-Vue-Plus</url>
-    <description>新澳CRM管理系统</description>
+    <description>云梭智能仓储管理系统（WMS）</description>
 
     <properties>
         <ruoyi-vue-plus.version>5.0.0</ruoyi-vue-plus.version>
