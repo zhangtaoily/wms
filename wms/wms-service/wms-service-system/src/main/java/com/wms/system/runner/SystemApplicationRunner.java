@@ -1,6 +1,5 @@
 package com.wms.system.runner;
 
-import com.wms.common.config.RuoYiConfig;
 import com.wms.system.service.ISysConfigService;
 import com.wms.system.service.ISysDictTypeService;
 import com.wms.system.service.ISysOssConfigService;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class SystemApplicationRunner implements ApplicationRunner {
 
-    private final RuoYiConfig ruoyiConfig;
     private final ISysConfigService configService;
     private final ISysDictTypeService dictTypeService;
     private final ISysOssConfigService ossConfigService;
@@ -29,9 +27,6 @@ public class SystemApplicationRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         ossConfigService.init();
         log.info("初始化OSS配置成功");
-        if (ruoyiConfig.isCacheLazy()) {
-            return;
-        }
         configService.loadingConfigCache();
         log.info("加载参数缓存数据成功");
         dictTypeService.loadingDictCache();
