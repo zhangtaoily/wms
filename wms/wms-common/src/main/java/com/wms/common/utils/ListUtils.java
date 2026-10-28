@@ -822,7 +822,26 @@ public class ListUtils {
      * @return
      */
     public static String toNumberIn(Object[] items) {
-        return toInExpr(adaptArray(items), item -> (String)item, true);
+        return toInExpr(adaptArray(items), ListUtils::toNumberString, true);
+    }
+
+    /**
+     * 数字类型in元素校验与转换：仅接受 Number 或纯数字字符串（支持负数/小数），
+     * 其余类型或非法内容抛出 UtilException，防止拼接出非法 SQL
+     * @param item 单个元素
+     * @return 数字字面量字符串
+     */
+    private static String toNumberString(Object item) {
+        if (item instanceof Number) {
+            return item.toString();
+        }
+        if (item instanceof String) {
+            String value = ((String) item).trim();
+            if (value.matches("-?\\d+(\\.\\d+)?")) {
+                return value;
+            }
+        }
+        throw new UtilException("toNumberIn 参数必须为数字或数字字符串: " + item);
     }
 
     public static <T> String toInExpr(List<T> list, Function<T, String> valueFormatFunction, boolean withBrackets) {
